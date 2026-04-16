@@ -1,0 +1,66 @@
+.dashboardContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  width: 100%;
+}
+
+.dashboardContent {
+  flex: 1;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.mobileMenuButton {
+  display: none;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 18px 18px 0 18px;
+}
+
+.dashboardOverlay {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    flex-direction: column;
+  }
+
+  .dashboardContent {
+    padding: 22px 18px;
+  }
+
+  .mobileMenuButton {
+    display: inline-flex;
+  }
+
+  .dashboardOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 20;
+  }
+
+  .dashboardOverlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboardContent {
+    padding: 16px 14px;
+  }
+}

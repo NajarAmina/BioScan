@@ -1,0 +1,134 @@
+.sidebar {
+  width: 230px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  transition: transform 0.25s ease, width 0.25s ease;
+}
+
+.sidebar .sidebarTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar .logoContainer {
+  align-items: center;
+}
+
+.sidebar .nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar .menuButton,
+.sidebar .activeButton {
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.sidebar .btnContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sidebar .btnLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sidebar .footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.sidebarCloseButton {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.sidebar.mobileOpen .sidebarCloseButton {
+  display: inline-flex;
+}
+
+.sidebar .userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.sidebar .avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.sidebar .themeBtn,
+.sidebar .logoutBtn {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 320px;
+    transform: translateX(-110%);
+    border-right: none !important;
+    border-bottom: none !important;
+    padding: 1.5rem 1rem;
+    box-shadow: 1px 0 24px rgba(15, 23, 42, 0.12);
+    z-index: 30;
+    background-color: var(--bg-card);
+  }
+
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+  }
+
+  .sidebar .logoContainer {
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .sidebar .menuButton,
+  .sidebar .activeButton {
+    padding: 10px 12px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .sidebar .footer {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .sidebar .btnLabel {
+    gap: 0.6rem;
+  }
+
+  .sidebar .footer {
+    justify-content: space-between;
+  }
+}
