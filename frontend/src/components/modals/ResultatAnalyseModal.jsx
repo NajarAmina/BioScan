@@ -22,9 +22,9 @@ const ResultatAnalyseModal = ({ product, onClose }) => {
 
     return (
         <div id="modal-overlay" style={styles.overlay} onClick={handleOverlayClick}>
-             {/* Le wrapper permet de centrer et de gérer la taille max */}
+            {/* Le wrapper permet de centrer et de gérer la taille max */}
             <div style={styles.modalContainer}>
-                
+
                 {/* Bouton de fermeture flottant au-dessus */}
                 <button style={styles.closeBtn} onClick={onClose} aria-label="Fermer">
                     <FiX size={24} />
@@ -35,19 +35,6 @@ const ResultatAnalyseModal = ({ product, onClose }) => {
                     <ResultatAnalyse product={product} />
                 </div>
             </div>
-            
-            {/* Animation de l'overlay */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes fadeInOverlay {
-                    from { opacity: 0; backdrop-filter: blur(0px); }
-                    to { opacity: 1; backdrop-filter: blur(8px); }
-                }
-                @keyframes scaleUp {
-                    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-                    to { opacity: 1; transform: scale(1) translateY(0); }
-                }
-            `}} />
         </div>
     );
 };

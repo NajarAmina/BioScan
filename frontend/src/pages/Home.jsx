@@ -162,13 +162,13 @@ const Home = () => {
       }
     } else {
       // ── Mode Ingrédient ─────────────────────────────────────────────
-      // ✅ Le frontend envoie UNIQUEMENT ingredients_text
+      // ✅ Même API ML que l'agent : POST /api/analyses/predict (sans LLM)
       // ✅ Le backend/Python calcule TOUTES les features automatiquement
       try {
         const ingList = query.split(',').map((s) => s.trim()).filter((s) => s);
 
         const aiResponse = await fetch(
-          'http://localhost:5000/api/analyses/predict-ingredients-llm',
+          'http://localhost:5000/api/analyses/predict',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -177,20 +177,17 @@ const Home = () => {
             }),
           }
         );
+        if (!aiResponse.ok) throw new Error(`Erreur ${aiResponse.status}`);
         const data = await aiResponse.json();
         console.log('🔍 API Response:', JSON.stringify(data, null, 2));
 
         const predictions = data.predictions || {};
-        const llmData = predictions.llm || null;
 
         const customProduct = {
           nom: "Analyse des ingrédients",
           description: `Ingrédients analysés : ${query}`,
           ingredients: ingList.map((nom) => ({ nom, estBio: false })),
-          ai_predictions: {
-            ...predictions,
-            llm: llmData,
-          },
+          ai_predictions: predictions,
           scoreBio: predictions.bioscore || 0,
           nova_group: predictions.nova_group || 1,
           image: null,
@@ -211,34 +208,27 @@ const Home = () => {
     setIsAnalyzing(false);
   };
 
-  // ✅ Payload minimal — le backend/Python calcule TOUTES les features
+  // ✅ Payload identique à l'Agent Sandbox : UNIQUEMENT ingredients_text
+  // On n'envoie PAS nova_group ni nutriscore_num issus de la BD, sinon les
+  // features côté Python diffèrent de celles du Sandbox agent.
   const buildMinimalPayload = (produit) => {
     const ingredients = produit?.ingredients || [];
-    // Construire le texte d'ingrédients à partir de la liste ou de la description
     const ingredientsText = ingredients.length > 0
       ? ingredients.map((ing) => ing.nom || ing.name || '').filter(Boolean).join(', ')
       : (produit?.description || produit?.nom || produit?.name || '');
 
-    return {
-      ingredients_text: ingredientsText,
-      nova_group: produit?.nova_group || produit?.nova || null,
-      nutriscore_num: produit?.nutriscore_num || produit?.nutriscore || produit?.nutri_score || null,
-    };
+    return { ingredients_text: ingredientsText };
   };
 
   const fetchAIForProduct = async (produit) => {
     if (!produit) return produit;
-    if (
-      produit.ai_predictions &&
-      Object.keys(produit.ai_predictions).length > 0
-    ) {
-      return produit;
-    }
+    // ✅ Pas d'early return : on recalcule TOUJOURS via l'API pour garantir
+    // le même résultat qu'un appel Sandbox agent (on ignore les ai_predictions
+    // éventuellement stockées en BD par une ancienne validation).
 
     try {
-      // ✅ Envoie seulement le payload minimal — le backend calcule le reste
       const response = await fetch(
-        'http://localhost:5000/api/analyses/predict-ingredients-llm',
+        'http://localhost:5000/api/analyses/predict',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -246,9 +236,13 @@ const Home = () => {
         }
       );
       const data = await response.json();
+      const predictions = data.predictions || {};
       return {
         ...produit,
-        ai_predictions: data.predictions || data || {},
+        ai_predictions: predictions,
+        // On écrase les valeurs BD pour que ResultatAnalyse affiche les fraîches
+        scoreBio: predictions.bioscore ?? produit.scoreBio,
+        nova_group: predictions.nova_group ?? produit.nova_group,
       };
     } catch (err) {
       console.error(

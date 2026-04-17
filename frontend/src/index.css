@@ -2,34 +2,34 @@
   --bg-main: #f9fafb;
   --bg-card: #ffffff;
   --bg-input: #f9fafb;
-  
+
   --text-primary: #111827;
   --text-secondary: #374151;
   --text-muted: #6b7280;
-  
+
   --border-color: #e5e7eb;
   --border-input: #e5e7eb;
-  
+
   --accent-color: #16a34a;
-  --shadow-light: 0 10px 40px rgba(0,0,0,0.06);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.07);
+  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07);
 }
 
 [data-theme='dark'] {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
   --bg-input: #0f172a;
-  
+
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  
+
   --border-color: #334155;
   --border-input: #334155;
-  
+
   --accent-color: #10b981;
-  --shadow-light: 0 10px 40px rgba(0,0,0,0.4);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -46,4 +46,68 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* ── Keyframes globales (déplacées depuis les composants pour éviter  */
+/*    les erreurs React `removeChild` sur les <style> inline) ──────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scanLineMove {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

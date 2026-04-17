@@ -232,14 +232,6 @@ const ResultatAnalyse = ({ product, isIngredientSearch = false }) => {
                     </div>
                 </div>
             )}
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}} />
         </div>
     );
 };

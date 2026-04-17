@@ -271,8 +271,8 @@ const Sandbox = () => {
             const query = rawIngredients.trim();
             const ingList = query.split(',').map((s) => s.trim()).filter((s) => s);
 
-            // ✅ Payload minimal — le backend calcule les features automatiquement
-            const res = await apiFetch(`${API}/analyses/predict-ingredients-llm`, {
+            // ✅ Même API ML que Home : POST /api/analyses/predict (sans LLM)
+            const res = await apiFetch(`${API}/analyses/predict`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -283,7 +283,6 @@ const Sandbox = () => {
             if (!res.ok) throw new Error(data.message || `Erreur ${res.status}`);
 
             const predictions = data.predictions || {};
-            const llmData = predictions.llm || null;
 
             // Build tags from model + local detection
             const fromModel = predictionsToTags(predictions);
@@ -302,10 +301,7 @@ const Sandbox = () => {
                 nom: "Analyse des ingrédients",
                 description: `Ingrédients analysés : ${query}`,
                 ingredients: ingList.map((nom) => ({ nom, estBio: false })),
-                ai_predictions: {
-                    ...predictions,
-                    llm: llmData,
-                },
+                ai_predictions: predictions,
                 scoreBio: predictions.bioscore || 0,
                 nova_group: predictions.nova_group || 1,
                 image: null,

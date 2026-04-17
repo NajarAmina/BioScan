@@ -29,14 +29,6 @@ const ScannerSection = ({ barcode, setBarcode, handleBarcodeScan, scannedProduct
                         <ResultatAnalyse product={scannedProduct} />
                     </div>
                 </div>
-
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    @keyframes fadeInUp {
-                        from { opacity: 0; transform: translateY(24px); }
-                        to   { opacity: 1; transform: translateY(0); }
-                    }
-                `}} />
             </section>
         );
     }
@@ -136,15 +128,6 @@ const ScannerSection = ({ barcode, setBarcode, handleBarcodeScan, scannedProduct
 
                 </div>
             </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes scanLineMove {
-                    0%   { transform: translateY(-100%); opacity: 0; }
-                    50%  { opacity: 1; }
-                    100% { transform: translateY(100%);  opacity: 0; }
-                }
-            `}} />
         </section>
     );
 };
