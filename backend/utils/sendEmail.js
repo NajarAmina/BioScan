@@ -9,6 +9,12 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendResetPasswordEmail = async (toEmail, resetUrl) => {
+    if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+        const error = new Error('SMTP non configuré');
+        error.code = 'SMTP_NON_CONFIGURE';
+        throw error;
+    }
+
     const mailOptions = {
         from: `"BioScan" <${process.env.SMTP_EMAIL}>`,
         to: toEmail,
@@ -39,7 +45,14 @@ const sendResetPasswordEmail = async (toEmail, resetUrl) => {
         `,
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (err) {
+        if (err.code === 'EAUTH' || err.responseCode === 535) {
+            err.code = 'SMTP_NON_CONFIGURE';
+        }
+        throw err;
+    }
 };
 
 module.exports = { sendResetPasswordEmail };
