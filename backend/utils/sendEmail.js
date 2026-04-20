@@ -1,12 +1,23 @@
 const nodemailer = require('nodemailer');
 
+// Debug: vérifier que les variables SMTP sont chargées
+console.log('[SMTP] Email configuré :', process.env.SMTP_EMAIL ? '✅ ' + process.env.SMTP_EMAIL : '❌ MANQUANT');
+console.log('[SMTP] Password configuré :', process.env.SMTP_PASSWORD ? '✅ (défini)' : '❌ MANQUANT');
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // SSL
     auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASSWORD,
     },
 });
+
+// Vérifier la connexion SMTP au démarrage
+transporter.verify()
+    .then(() => console.log('[SMTP] ✅ Connexion SMTP vérifiée avec succès'))
+    .catch((err) => console.error('[SMTP] ❌ Échec de la vérification SMTP :', err.message));
 
 const sendResetPasswordEmail = async (toEmail, resetUrl) => {
     if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
@@ -45,12 +56,16 @@ const sendResetPasswordEmail = async (toEmail, resetUrl) => {
         `,
     };
 
+
+    console.log('[SMTP] Envoi d\'email à :', toEmail);
     try {
-        await transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('[SMTP] ✅ Email envoyé avec succès. MessageId :', info.messageId);
+        return info;
     } catch (err) {
-        if (err.code === 'EAUTH' || err.responseCode === 535) {
-            err.code = 'SMTP_NON_CONFIGURE';
-        }
+        console.error('[SMTP] ❌ Erreur envoi email :', err.message);
+        console.error('[SMTP] Code erreur :', err.code);
+        console.error('[SMTP] Commande :', err.command);
         throw err;
     }
 };

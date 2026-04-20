@@ -1,5 +1,6 @@
 // src/components/Agent/ProductCard.jsx
 import React, { useState } from 'react';
+import '../Agent/ProductManagement.css';
 
 const ProductCard = ({
     product,
@@ -11,7 +12,6 @@ const ProductCard = ({
     onRefuse,
     onClickCard,
     pending = false,
-    S
 }) => {
     const [hovered, setHovered] = useState(false);
     const isPending = pending || (!!onAccept && !!onRefuse);
@@ -21,61 +21,63 @@ const ProductCard = ({
         if (!localisation?.lat || !localisation?.lng) return null;
         const url = `https://www.google.com/maps?q=${localisation.lat},${localisation.lng}`;
         return (
-            <a href={url} target="_blank" rel="noreferrer" style={S.mapsLink}>
+            <a href={url} target="_blank" rel="noreferrer" className="pm-maps-link">
                 🗺️ Voir sur Google Maps
             </a>
         );
     };
 
+    const cardClass = [
+        'pm-card',
+        isPending ? 'pending' : '',
+        onClickCard ? 'clickable' : '',
+    ].filter(Boolean).join(' ');
+
     return (
         <div
-            style={{
-                ...S.card,
-                ...(isPending && { borderLeft: '4px solid #FF9800' }),
-                ...(onClickCard ? {
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    transform: hovered ? 'translateY(-2px)' : 'none',
-                    boxShadow: hovered ? '0 18px 32px rgba(15,23,42,0.12)' : S.card.boxShadow,
-                } : {}),
-            }}
+            className={cardClass}
             onClick={onClickCard ? () => onClickCard(product) : undefined}
             onMouseEnter={() => onClickCard && setHovered(true)}
             onMouseLeave={() => onClickCard && setHovered(false)}
+            style={onClickCard && hovered ? { transform: 'translateY(-3px)', boxShadow: '0 12px 32px rgba(59, 130, 246, 0.12)' } : undefined}
         >
             {isEditing ? (
                 children
             ) : (
-                <div style={S.cardRow}>
+                <div className="pm-card-row">
                     {product.image && (
-                        <img src={product.image} alt={product.nom} style={S.productImg} />
+                        <img src={product.image} alt={product.nom} className="pm-product-img" />
                     )}
 
-                    <div style={{ flex: 1 }}>
-                        <div style={S.cardHeader}>
-                            <h3 style={S.cardTitle}>{product.nom}</h3>
-                            {product.origine && <span style={S.badge}>{product.origine}</span>}
+                    <div className="pm-card-body">
+                        <div className="pm-card-header">
+                            <h3 className="pm-card-title">{product.nom}</h3>
+                            {product.origine && <span className="pm-badge">{product.origine}</span>}
                             {isPending && (
-                                <span style={{ ...S.badge, backgroundColor: '#FFF3E0', color: '#E65100' }}>
+                                <span className="pm-badge pending">
                                     En attente
                                 </span>
                             )}
                         </div>
 
-                        <p style={S.cardDesc}>{product.description}</p>
-                        {product.code_barre && <p style={S.meta}>🔖 {product.code_barre}</p>}
+                        <p className="pm-card-desc">{product.description}</p>
+                        {product.code_barre && (
+                            <p className="pm-meta">
+                                <span className="pm-meta-icon">🔖</span> {product.code_barre}
+                            </p>
+                        )}
 
                         {product.ingredients && (
-                            <p style={S.meta}>
-                                🧪 {Array.isArray(product.ingredients)
+                            <p className="pm-meta">
+                                <span className="pm-meta-icon">🧪</span> {Array.isArray(product.ingredients)
                                     ? product.ingredients.map(i => typeof i === 'object' ? (i.nom || i) : i).filter(Boolean).join(', ')
                                     : product.ingredients}
                             </p>
                         )}
 
                         {product.pointsDeVente?.length > 0 && (
-                            <p style={S.meta}>
-                                📍 {product.pointsDeVente.map(pv =>
+                            <p className="pm-meta">
+                                <span className="pm-meta-icon">📍</span> {product.pointsDeVente.map(pv =>
                                     typeof pv === 'object' ? (pv.nom || pv.adresse || '') : pv
                                 ).filter(Boolean).join(', ')}
                             </p>
@@ -84,17 +86,17 @@ const ProductCard = ({
                         <MapsLink localisation={product.localisation} />
 
                         {isPending && (
-                            <p style={{ ...S.meta, color: '#999' }}>
+                            <p className="pm-submitter">
                                 Soumis par : {product.createdByName || product.createdBy?.nom || 'Fournisseur'}
                             </p>
                         )}
                     </div>
 
-                    <div style={S.cardActions}>
+                    <div className="pm-card-actions">
                         {isPending ? null : (
                             <>
-                                <button onClick={onEdit} style={S.btnEdit}>✏️ Modifier</button>
-                                <button onClick={onDelete} style={S.btnDanger}>🗑️ Supprimer</button>
+                                <button onClick={onEdit} className="pm-btn pm-btn-edit"> Modifier</button>
+                                <button onClick={onDelete} className="pm-btn pm-btn-danger"> Supprimer</button>
                             </>
                         )}
                     </div>

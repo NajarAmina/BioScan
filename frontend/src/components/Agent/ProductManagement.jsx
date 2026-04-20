@@ -7,56 +7,21 @@ import AddProductTab from '../Shared/AddProductTab';
 import UpdateForm from './UpdateForm';
 import ProductCard from './AgentProductCard';
 import StoreSection from './StoreSection';
-
-// ==================== STYLES COMMUNS ====================
-const S = {
-    page: { padding: '8px 0', fontFamily: 'sans-serif' },
-    pageTitle: { fontSize: 22, fontWeight: 700, marginBottom: 20, color: '#222' },
-    tabs: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
-    tab: { padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer', backgroundColor: '#fff', fontSize: 14, color: '#555', fontWeight: 500 },
-    tabActive: { backgroundColor: '#1976D2', color: '#fff', border: '1px solid #1976D2' },
-    loading: { padding: 32, textAlign: 'center', color: '#888', fontSize: 15 },
-    empty: { color: '#888', fontStyle: 'italic', padding: '16px 0' },
-    errorBanner: { backgroundColor: '#FFF3E0', border: '1px solid #FF9800', borderRadius: 8, padding: '12px 16px', marginBottom: 16, color: '#E65100', fontSize: 14, display: 'flex', alignItems: 'center', gap: 12 },
-    retryBtn: { marginLeft: 'auto', padding: '6px 14px', backgroundColor: '#FF9800', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-    cardTitle: { margin: 0, fontSize: 16, fontWeight: 700, color: '#222' },
-
-    formCard: { backgroundColor: '#f9f9f9', padding: 20, borderRadius: 10, border: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', gap: 12 },
-    formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
-    input: { padding: '10px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, width: '100%', boxSizing: 'border-box', outline: 'none' },
-    btnSuccess: { backgroundColor: '#4CAF50', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-    btnEdit: { backgroundColor: '#1976D2', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-    btnDanger: { backgroundColor: '#f44336', color: '#fff', border: 'none', padding: '9px 16px', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 },
-    btnDangerSm: { backgroundColor: '#f44336', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: 6, cursor: 'pointer', fontSize: 13 },
-    btnSecondary: { backgroundColor: '#fff', color: '#555', border: '1px solid #ccc', padding: '9px 16px', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 13 },
-
-    card: { backgroundColor: '#fff', padding: 16, marginBottom: 12, borderRadius: 10, border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-    cardRow: { display: 'flex', gap: 14, alignItems: 'flex-start' },
-    cardHeader: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 },
-    cardDesc: { margin: '0 0 6px', fontSize: 14, color: '#555' },
-    cardActions: { display: 'flex', flexDirection: 'column', gap: 8, minWidth: 120 },
-    meta: { margin: '2px 0', fontSize: 12, color: '#777' },
-    badge: { fontSize: 11, padding: '2px 8px', borderRadius: 12, backgroundColor: '#E8F5E9', color: '#2E7D32', fontWeight: 600 },
-    productImg: { width: 70, height: 70, objectFit: 'cover', borderRadius: 8, flexShrink: 0 },
-    sectionTitle: { fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 12 },
-    pointForm: { display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, alignItems: 'start', marginBottom: 12 },
-    pointCard: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', padding: '10px 14px', marginBottom: 8, borderRadius: 8, border: '1px solid #e5e7eb' },
-    mapsLink: { display: 'inline-block', color: '#1976D2', fontSize: 12, fontWeight: 600, textDecoration: 'none', marginTop: 4 },
-    mapsBox: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4, marginTop: 4, padding: '6px 10px', backgroundColor: '#E3F2FD', borderRadius: 6 },
-};
+import './ProductManagement.css';
 
 // ==================== LISTE PAYS ====================
 const PAYS = ['Tunisie', 'France', 'Algérie', 'Maroc', 'Italie', 'Espagne', 'Allemagne', 'États-Unis'];
 
 // ==================== COMPOSANTS INTERNES (Toast + ConfirmModal) ====================
 const Toast = ({ toasts }) => (
-    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="pm-toast-container">
         {toasts.map(t => (
-            <div key={t.id} style={{
-                padding: '12px 20px', borderRadius: 8, color: '#fff', fontWeight: 600, fontSize: 14,
-                backgroundColor: t.type === 'success' ? '#4CAF50' : t.type === 'error' ? '#f44336' : '#1976D2',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-            }}>{t.msg}</div>
+            <div key={t.id} className={`pm-toast ${t.type}`}>
+                {t.type === 'success' && '✅'}
+                {t.type === 'error' && '❌'}
+                {t.type === 'info' && 'ℹ️'}
+                {t.msg}
+            </div>
         ))}
     </div>
 );
@@ -64,12 +29,12 @@ const Toast = ({ toasts }) => (
 const ConfirmModal = ({ open, message, onConfirm, onCancel }) => {
     if (!open) return null;
     return (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 8888, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: '#fff', borderRadius: 12, padding: '28px 32px', maxWidth: 400, width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                <p style={{ marginBottom: 24, fontSize: 15, color: '#333', lineHeight: 1.6 }}>{message}</p>
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                    <button onClick={onCancel} style={S.btnSecondary}>Annuler</button>
-                    <button onClick={onConfirm} style={S.btnDanger}>Confirmer</button>
+        <div className="pm-modal-overlay">
+            <div className="pm-modal-card">
+                <p>{message}</p>
+                <div className="pm-modal-actions">
+                    <button onClick={onCancel} className="pm-btn pm-btn-secondary">Annuler</button>
+                    <button onClick={onConfirm} className="pm-btn pm-btn-danger">Confirmer</button>
                 </div>
             </div>
         </div>
@@ -244,56 +209,63 @@ const ProductManagement = ({ onSelectProduct }) => {
 
     // ==================== RENDER ====================
     return (
-        <div style={S.page}>
-            <h2 style={S.pageTitle}>📦 Gérer les Produits</h2>
+        <div className="pm-page">
+            <h2 className="pm-page-title">
+                <span className="pm-title-icon">📦</span>
+                Gérer les Produits
+            </h2>
 
             {errorMsg && (
-                <div style={S.errorBanner}>
+                <div className="pm-error-banner">
                     ⚠️ {errorMsg}
-                    <button onClick={loadAll} style={S.retryBtn}>🔄 Réessayer</button>
+                    <button onClick={loadAll} className="pm-retry-btn">🔄 Réessayer</button>
                 </div>
             )}
 
-            <div style={S.tabs}>
+            <div className="pm-tabs">
                 {[
-                    { key: 'approved', label: `✅ Produits validés (${products.length})` },
-                    { key: 'pending', label: `⏳ En attente (${pendingProducts.length})` },
-                    { key: 'add', label: '➕ Nouveau produit' },
-                    { key: 'points', label: `📍 Points de vente (${pointsDeVente.length})` },
+                    { key: 'approved', label: 'Produits validés', count: products.length, icon: '✅' },
+                    { key: 'pending', label: 'En attente', count: pendingProducts.length, icon: '⏳' },
+                    { key: 'add', label: 'Nouveau produit', icon: '➕' },
+                    { key: 'points', label: 'Points de vente', count: pointsDeVente.length, icon: '📍' },
                 ].map(tab => (
                     <button
                         key={tab.key}
                         onClick={() => { setActiveTab(tab.key); setEditingProductId(null); }}
-                        style={{ ...S.tab, ...(activeTab === tab.key ? S.tabActive : {}) }}
+                        className={`pm-tab ${activeTab === tab.key ? 'active' : ''}`}
                     >
-                        {tab.label}
+                        {tab.icon} {tab.label}
+                        {tab.count !== undefined && (
+                            <span className="tab-count">{tab.count}</span>
+                        )}
                     </button>
                 ))}
             </div>
 
             {loading ? (
-                <div style={S.loading}>⏳ Chargement...</div>
+                <div className="pm-loading">
+                    <div className="pm-spinner" />
+                    Chargement des données...
+                </div>
             ) : (
                 <>
                     {activeTab === 'approved' && (
                         <div>
-                            {products.length === 0 ? <p style={S.empty}>Aucun produit validé.</p> : products.map(p => (
+                            {products.length === 0 ? <p className="pm-empty">Aucun produit validé.</p> : products.map(p => (
                                 <ProductCard
                                     key={p._id}
                                     product={p}
                                     isEditing={editingProductId === p._id}
                                     onEdit={() => startEdit(p)}
                                     onDelete={() => deleteProduct(p)}
-                                    S={S}
                                 >
-                                    <h4 style={S.cardTitle}>✏️ Modifier : {p.nom}</h4>
+                                    <h4 className="pm-edit-title"> Modifier : {p.nom}</h4>
                                     <UpdateForm
                                         form={productForm}
                                         setForm={setProductForm}
                                         pointsDeVente={pointsDeVente}
                                         onSubmit={() => saveEdit(p)}
                                         onCancel={() => { setEditingProductId(null); setProductForm(emptyForm); }}
-                                        S={S}
                                         PAYS={PAYS}
                                     />
                                 </ProductCard>
@@ -303,7 +275,7 @@ const ProductManagement = ({ onSelectProduct }) => {
 
                     {activeTab === 'pending' && (
                         <div>
-                            {pendingProducts.length === 0 ? <p style={S.empty}>Aucun produit en attente.</p> : pendingProducts.map(p => (
+                            {pendingProducts.length === 0 ? <p className="pm-empty">Aucun produit en attente.</p> : pendingProducts.map(p => (
                                 <ProductCard
                                     key={p._id}
                                     product={p}
@@ -314,7 +286,6 @@ const ProductManagement = ({ onSelectProduct }) => {
                                         }
                                         navigate('/dashboard/AgentDashboard?tab=aiAnalysis');
                                     }}
-                                    S={S}
                                 />
                             ))}
                         </div>
@@ -335,7 +306,6 @@ const ProductManagement = ({ onSelectProduct }) => {
                             setNewPoint={setNewPoint}
                             onAddPoint={handleAddPoint}
                             onDeletePoint={handleDeletePoint}
-                            S={S}
                         />
                     )}
                 </>

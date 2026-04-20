@@ -1,6 +1,7 @@
 import React from 'react';
+import './ProductManagement.css';
 
-const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS }) => {
+const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, PAYS }) => {
     const readFile = (file) => new Promise((res, rej) => {
         const reader = new FileReader();
         reader.onload = () => res(String(reader.result || ''));
@@ -9,19 +10,19 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
     });
 
     return (
-        <div style={S.formCard}>
-            <div style={S.formGrid}>
+        <div className="pm-form-card">
+            <div className="pm-form-grid">
                 <input
                     placeholder="Nom du produit *"
                     value={form.nom}
                     onChange={e => setForm({ ...form, nom: e.target.value })}
-                    style={S.input}
+                    className="pm-input"
                 />
                 <input
                     placeholder="Code-barre *"
                     value={form.code_barre}
                     onChange={e => setForm({ ...form, code_barre: e.target.value })}
-                    style={S.input}
+                    className="pm-input"
                 />
             </div>
 
@@ -29,7 +30,7 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
             <select
                 value={form.origine}
                 onChange={e => setForm({ ...form, origine: e.target.value })}
-                style={S.input}
+                className="pm-input"
             >
                 <option value="">-- Choisir le pays d'origine --</option>
                 {PAYS.map(pays => (
@@ -41,14 +42,16 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
                 placeholder="Description *"
                 value={form.description}
                 onChange={e => setForm({ ...form, description: e.target.value })}
-                style={{ ...S.input, minHeight: 80, resize: 'vertical' }}
+                className="pm-input"
+                style={{ minHeight: 80, resize: 'vertical' }}
             />
 
             <textarea
                 placeholder="Ingrédients"
                 value={form.ingredients}
                 onChange={e => setForm({ ...form, ingredients: e.target.value })}
-                style={{ ...S.input, minHeight: 60, resize: 'vertical' }}
+                className="pm-input"
+                style={{ minHeight: 60, resize: 'vertical' }}
             />
 
             <input
@@ -64,14 +67,14 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
                         alert("Impossible de lire l'image");
                     }
                 }}
-                style={S.input}
+                className="pm-input"
             />
 
             {form.image && (
-                <img src={form.image} alt="Aperçu" style={{ maxWidth: 180, borderRadius: 8, marginTop: 6 }} />
+                <img src={form.image} alt="Aperçu" className="pm-img-preview" />
             )}
 
-            <label style={{ fontSize: 13, color: '#555' }}>Points de vente</label>
+            <label className="pm-form-label">Points de vente</label>
             <select
                 multiple
                 value={form.pointsDeVente || []}
@@ -79,7 +82,8 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
                     const selected = Array.from(e.target.selectedOptions).map(o => o.value);
                     setForm({ ...form, pointsDeVente: selected });
                 }}
-                style={{ ...S.input, minHeight: 90 }}
+                className="pm-input"
+                style={{ minHeight: 90 }}
             >
                 {pointsDeVente.map(pv => (
                     <option key={pv._id} value={pv._id}>
@@ -89,8 +93,8 @@ const UpdateForm = ({ form, setForm, pointsDeVente, onSubmit, onCancel, S, PAYS 
             </select>
 
             <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                <button onClick={onSubmit} style={S.btnSuccess}>💾 Enregistrer les modifications</button>
-                <button onClick={onCancel} style={S.btnSecondary}>Annuler</button>
+                <button onClick={onSubmit} className="pm-btn pm-btn-success">💾 Enregistrer les modifications</button>
+                <button onClick={onCancel} className="pm-btn pm-btn-secondary">Annuler</button>
             </div>
         </div>
     );

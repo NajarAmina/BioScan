@@ -1,25 +1,16 @@
 // src/pages/Home.jsx
-//
-// Page unique partagée par le visiteur ET le consommateur.
-// Les fonctionnalités consommateur (favoris, historique, commentaires,
-// profil, chatbot) sont montées conditionnellement selon user?.role.
-//
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// Composants communs
 import Navbar from '../components/Home/Navbar';
 import HeroSection from '../components/Home/HeroSection';
 import ScannerSection from '../components/Home/ScannerSection';
 import ProductsSection from '../components/Home/ProductsSection';
 import Footer from '../components/Home/Footer';
 import ResultatAnalyse from '../components/Shared/ResultatAnalyse';
-
-// Composants consommateur uniquement
 import Chatbot from '../components/Home/Chatbot';
 
-// Hooks
 import useFavorites from '../hooks/useFavorites';
 import useHistory from '../hooks/useHistory';
 import useComments from '../hooks/useComments';
@@ -30,7 +21,6 @@ const Home = () => {
 
   const isConsommateur = user?.role === 'consommateur';
 
-  // ── Produits ───────────────────────────────────────────────────────────────
   const [allProducts, setAllProducts] = useState([]);
   const [displayProducts, setDisplayProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,29 +28,17 @@ const Home = () => {
   const [scannedProduct, setScannedProduct] = useState(null);
   const [scanError, setScanError] = useState(false);
 
-  // States pour la recherche Hero
   const [searchMode, setSearchMode] = useState('produit');
   const [ingredientResult, setIngredientResult] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSearchProduct, setSelectedSearchProduct] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // ── Hooks consommateur ─────────────────────────────────────────────────────
-  const { favorites, isFavorite, addFavorite, removeFavorite } = useFavorites(
-    user?.id,
-    user?.role
-  );
+  const { favorites, isFavorite, addFavorite, removeFavorite } = useFavorites(user?.id, user?.role);
   const { searchHistory, addToHistory, removeFromHistory, clearHistory } = useHistory(
     isConsommateur ? user?.id : null
   );
-  const {
-    comments,
-    getProductComments,
-    getAverageRating,
-    addComment,
-    editComment,
-    deleteComment,
-  } = useComments();
+  const { comments, getProductComments, getAverageRating, addComment, editComment, deleteComment } = useComments();
 
   // ── Redirection admin ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -75,9 +53,7 @@ const Home = () => {
     if (cached) {
       const parsed = JSON.parse(cached);
       setAllProducts(parsed);
-      if (!searchQuery.trim()) {
-        setDisplayProducts(parsed);
-      }
+      if (!searchQuery.trim()) setDisplayProducts(parsed);
     }
 
     fetch('http://localhost:5000/api/produits?status=approved')
@@ -87,9 +63,7 @@ const Home = () => {
           setAllProducts(data);
           localStorage.setItem('cached_produits', JSON.stringify(data));
           setSearchQuery((currentQuery) => {
-            if (!currentQuery.trim()) {
-              setDisplayProducts(data);
-            }
+            if (!currentQuery.trim()) setDisplayProducts(data);
             return currentQuery;
           });
         } else {
@@ -99,14 +73,13 @@ const Home = () => {
       .catch(() => console.log('API indisponible'));
   }, []);
 
-  // Réinitialise displayProducts quand la recherche est effacée
+  // ── Réinitialise displayProducts quand la recherche est effacée ────────────
   useEffect(() => {
     if (!searchQuery.trim()) {
       setDisplayProducts(allProducts);
       setIngredientResult(null);
       setSelectedProduct(null);
       setSelectedSearchProduct(null);
-      console.log("searchQuery", searchQuery);
     }
   }, [searchQuery, allProducts]);
 
@@ -114,7 +87,6 @@ const Home = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     const query = searchQuery.trim();
-    console.log(query);
 
     if (!query) {
       setDisplayProducts(allProducts);
@@ -132,13 +104,10 @@ const Home = () => {
         );
         if (!response.ok) throw new Error('Erreur serveur OCR/NLP');
         const results = await response.json();
-        console.log(results);
 
         if (Array.isArray(results)) {
           setDisplayProducts(results);
-          if (isConsommateur && results.length > 0) {
-            addToHistory(query);
-          }
+          if (isConsommateur && results.length > 0) addToHistory(query);
         } else {
           setDisplayProducts([]);
         }
@@ -151,36 +120,21 @@ const Home = () => {
             p.name?.toLowerCase().includes(lowerQuery) ||
             p.description?.toLowerCase().includes(lowerQuery) ||
             (p.ingredients &&
-              p.ingredients.some((ing) =>
-                ing.nom?.toLowerCase().includes(lowerQuery)
-              ))
+              p.ingredients.some((ing) => ing.nom?.toLowerCase().includes(lowerQuery)))
         );
         setDisplayProducts(results);
-        if (isConsommateur && results.length > 0) {
-          addToHistory(query);
-        }
+        if (isConsommateur && results.length > 0) addToHistory(query);
       }
     } else {
-      // ── Mode Ingrédient ─────────────────────────────────────────────
-      // ✅ Même API ML que l'agent : POST /api/analyses/predict (sans LLM)
-      // ✅ Le backend/Python calcule TOUTES les features automatiquement
       try {
         const ingList = query.split(',').map((s) => s.trim()).filter((s) => s);
-
-        const aiResponse = await fetch(
-          'http://localhost:5000/api/analyses/predict',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ingredients_text: query,
-            }),
-          }
-        );
+        const aiResponse = await fetch('http://localhost:5000/api/analyses/predict-ingredients-llm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ingredients_text: query }),
+        });
         if (!aiResponse.ok) throw new Error(`Erreur ${aiResponse.status}`);
         const data = await aiResponse.json();
-        console.log('🔍 API Response:', JSON.stringify(data, null, 2));
-
         const predictions = data.predictions || {};
 
         const customProduct = {
@@ -196,10 +150,7 @@ const Home = () => {
         };
 
         setIngredientResult(customProduct);
-
-        if (isConsommateur) {
-          addToHistory(query);
-        }
+        if (isConsommateur) addToHistory(query);
       } catch (err) {
         console.error("Erreur avec l'analyse d'ingrédients:", err);
       }
@@ -208,48 +159,34 @@ const Home = () => {
     setIsAnalyzing(false);
   };
 
-  // ✅ Payload identique à l'Agent Sandbox : UNIQUEMENT ingredients_text
-  // On n'envoie PAS nova_group ni nutriscore_num issus de la BD, sinon les
-  // features côté Python diffèrent de celles du Sandbox agent.
+  // ── Helpers IA ─────────────────────────────────────────────────────────────
   const buildMinimalPayload = (produit) => {
     const ingredients = produit?.ingredients || [];
-    const ingredientsText = ingredients.length > 0
-      ? ingredients.map((ing) => ing.nom || ing.name || '').filter(Boolean).join(', ')
-      : (produit?.description || produit?.nom || produit?.name || '');
-
+    const ingredientsText =
+      ingredients.length > 0
+        ? ingredients.map((ing) => ing.nom || ing.name || '').filter(Boolean).join(', ')
+        : produit?.description || produit?.nom || produit?.name || '';
     return { ingredients_text: ingredientsText };
   };
 
   const fetchAIForProduct = async (produit) => {
     if (!produit) return produit;
-    // ✅ Pas d'early return : on recalcule TOUJOURS via l'API pour garantir
-    // le même résultat qu'un appel Sandbox agent (on ignore les ai_predictions
-    // éventuellement stockées en BD par une ancienne validation).
-
     try {
-      const response = await fetch(
-        'http://localhost:5000/api/analyses/predict',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(buildMinimalPayload(produit)),
-        }
-      );
+      const response = await fetch('http://localhost:5000/api/analyses/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildMinimalPayload(produit)),
+      });
       const data = await response.json();
       const predictions = data.predictions || {};
       return {
         ...produit,
         ai_predictions: predictions,
-        // On écrase les valeurs BD pour que ResultatAnalyse affiche les fraîches
         scoreBio: predictions.bioscore ?? produit.scoreBio,
         nova_group: predictions.nova_group ?? produit.nova_group,
       };
     } catch (err) {
-      console.error(
-        'Erreur lors de la récupération IA pour le produit :',
-        produit?.nom || produit?.name,
-        err
-      );
+      console.error('Erreur IA pour le produit :', produit?.nom || produit?.name, err);
       return produit;
     }
   };
@@ -268,14 +205,14 @@ const Home = () => {
     setIsAnalyzing(false);
   };
 
-  // ── Reset produit scanné (bouton retour dans ScannerSection) ───────────────
+  // ── Reset produit scanné ───────────────────────────────────────────────────
   const handleResetScannedProduct = () => {
     setScannedProduct(null);
     setBarcode('');
     setScanError(false);
   };
 
-  // ── Recherche par Scan ─────────────────────────────────────────────────────
+  // ── Recherche par code-barres ──────────────────────────────────────────────
   const handleBarcodeScan = async () => {
     setScanError(false);
     const query = barcode.trim();
@@ -300,7 +237,8 @@ const Home = () => {
       }
 
       const product = await response.json();
-      setScannedProduct(product);
+      const enriched = await fetchAIForProduct(product);
+      setScannedProduct(enriched);
 
       setAllProducts((prevProducts) => {
         const existingIndex = prevProducts.findIndex(
@@ -312,16 +250,14 @@ const Home = () => {
 
         if (existingIndex !== -1) {
           const copy = [...prevProducts];
-          copy[existingIndex] = product;
+          copy[existingIndex] = enriched;
           return copy;
         }
 
         return prevProducts;
       });
 
-      if (isConsommateur) {
-        addToHistory(query);
-      }
+      if (isConsommateur) addToHistory(query);
     } catch (err) {
       console.error("Erreur lors de l'appel de scan produit : ", err);
       setScanError(true);
@@ -353,7 +289,6 @@ const Home = () => {
         onLogout={handleLogout}
       />
 
-      {/* ── Sections communes ──────────────────────────────────────────── */}
       <HeroSection
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -386,13 +321,7 @@ const Home = () => {
             backgroundColor: '#f8fafc',
           }}
         >
-          <span
-            style={{
-              display: 'inline-block',
-              animation: 'spin 2s linear infinite',
-              marginRight: '0.5rem',
-            }}
-          >
+          <span style={{ display: 'inline-block', animation: 'spin 2s linear infinite', marginRight: '0.5rem' }}>
             ⏳
           </span>
           Analyse IA en cours...
@@ -402,40 +331,15 @@ const Home = () => {
       {!isAnalyzing && selectedProduct ? (
         <section
           id="products-section"
-          style={{
-            backgroundColor: '#f8fafc',
-            padding: '4rem 1.5rem',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
+          style={{ backgroundColor: '#f8fafc', padding: '4rem 1.5rem', display: 'flex', justifyContent: 'center' }}
         >
           <div style={{ maxWidth: '1000px', width: '100%' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1.5rem',
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: '#0f172a',
-                }}
-              >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a' }}>
                 Résultat de l'analyse IA
               </h2>
               <button
-                style={{
-                  padding: '0.75rem 1.2rem',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  color: '#334155',
-                }}
+                style={{ padding: '0.75rem 1.2rem', borderRadius: '0.75rem', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', color: '#334155' }}
                 onClick={() => setSelectedProduct(null)}
               >
                 Retour au scan
@@ -447,40 +351,15 @@ const Home = () => {
       ) : !isAnalyzing && selectedSearchProduct ? (
         <section
           id="products-section"
-          style={{
-            backgroundColor: '#f8fafc',
-            padding: '4rem 1.5rem',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
+          style={{ backgroundColor: '#f8fafc', padding: '4rem 1.5rem', display: 'flex', justifyContent: 'center' }}
         >
           <div style={{ maxWidth: '1000px', width: '100%' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1.5rem',
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: '#0f172a',
-                }}
-              >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a' }}>
                 Résultat de l'analyse IA
               </h2>
               <button
-                style={{
-                  padding: '0.75rem 1.2rem',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  color: '#334155',
-                }}
+                style={{ padding: '0.75rem 1.2rem', borderRadius: '0.75rem', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', color: '#334155' }}
                 onClick={() => setSelectedSearchProduct(null)}
               >
                 Retour aux résultats
@@ -492,34 +371,15 @@ const Home = () => {
       ) : !isAnalyzing && ingredientResult ? (
         <section
           id="products-section"
-          style={{
-            backgroundColor: '#f8fafc',
-            padding: '4rem 1.5rem',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
+          style={{ backgroundColor: '#f8fafc', padding: '4rem 1.5rem', display: 'flex', justifyContent: 'center' }}
         >
           <div style={{ maxWidth: '1000px', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: '#0f172a',
-                  margin: 0,
-                }}
-              >
+              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', margin: 0 }}>
                 Résultat de l'analyse IA
               </h2>
               <button
-                style={{
-                  padding: '0.75rem 1.2rem',
-                  borderRadius: '0.75rem',
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  color: '#334155',
-                }}
+                style={{ padding: '0.75rem 1.2rem', borderRadius: '0.75rem', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer', color: '#334155' }}
                 onClick={() => {
                   setIngredientResult(null);
                   setSearchQuery('');
@@ -546,7 +406,6 @@ const Home = () => {
         />
       )}
 
-      {/* ── Chatbot — consommateur uniquement ─────────────────────────── */}
       {isConsommateur && <Chatbot user={user} addToHistory={addToHistory} />}
 
       <Footer />

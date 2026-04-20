@@ -62,7 +62,9 @@ const ResultatAnalyse = ({ product, isIngredientSearch = false }) => {
                 <div style={styles.reportHeader}>
                     <div style={styles.brandTag}>{marque}</div>
                     <h3 style={styles.reportTitle}>{product.nom}</h3>
-                    <p style={styles.reportOrigin}>📍 Origine : <strong>{origin}</strong></p>
+                    {!isIngredientSearch && (
+                        <p style={styles.reportOrigin}>📍 Origine : <strong>{origin}</strong></p>
+                    )}
                     {product.ai_predictions?.llm?.qualite_globale && (
                         <p style={styles.reportOrigin}>📂 Catégorie qualité : <strong>{product.ai_predictions.llm.qualite_globale}</strong></p>
                     )}

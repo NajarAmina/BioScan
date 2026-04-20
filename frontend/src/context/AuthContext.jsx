@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }) => {
     const res = await fetch(`${API_AUTH}/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, newPassword }),
+      body: JSON.stringify({ token, password: newPassword }),
       credentials: 'include'
     });
     const data = await res.json().catch(() => ({}));

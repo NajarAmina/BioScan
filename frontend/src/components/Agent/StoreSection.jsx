@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import './ProductManagement.css';
 
 // ─── Autocomplete Adresse Nominatim (identique à AddProductTab) ───────────────
 const AdresseAutocomplete = ({ value, onChange, onSelectCoords }) => {
@@ -74,7 +75,7 @@ const AdresseAutocomplete = ({ value, onChange, onSelectCoords }) => {
                     onChange={handleInput}
                     onKeyDown={handleKeyDown}
                     onFocus={() => suggestions.length > 0 && setOpen(true)}
-                    style={addrStyles.input}
+                    className="pm-input"
                     autoComplete="off"
                 />
                 {loadingAddr && (
@@ -110,24 +111,15 @@ const AdresseAutocomplete = ({ value, onChange, onSelectCoords }) => {
 };
 
 const addrStyles = {
-    input: {
-        padding: '10px 12px',
-        border: '1px solid #ddd',
-        borderRadius: 6,
-        fontSize: 14,
-        width: '100%',
-        boxSizing: 'border-box',
-        outline: 'none',
-    },
     dropdown: {
         position: 'absolute',
         top: '100%',
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
-        border: '1px solid #e2e8f0',
-        borderRadius: 10,
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--border-color)',
+        borderRadius: 12,
+        boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
         zIndex: 1000,
         listStyle: 'none',
         margin: '6px 0 0 0',
@@ -139,29 +131,30 @@ const addrStyles = {
         padding: '12px 16px',
         cursor: 'pointer',
         fontSize: 14,
-        color: '#334155',
+        color: 'var(--text-secondary)',
+        transition: 'background-color 0.15s ease',
     },
     dropdownItemHighlighted: {
-        backgroundColor: '#f1f5f9',
-        color: '#0f172a',
+        backgroundColor: 'var(--bg-input)',
+        color: 'var(--text-primary)',
         fontWeight: 600,
     },
 };
 
 // ─── StoreSection ─────────────────────────────────────────────────────────────
-const StoreSection = ({ pointsDeVente, newPoint, setNewPoint, onAddPoint, onDeletePoint, S }) => {
+const StoreSection = ({ pointsDeVente, newPoint, setNewPoint, onAddPoint, onDeletePoint }) => {
 
     return (
         <div>
-            <h3 style={S.sectionTitle}>Ajouter un point de vente</h3>
+            <h3 className="pm-section-title">➕ Ajouter un point de vente</h3>
 
             {/* Ligne : Nom + Adresse autocomplete + Bouton */}
-            <div style={S.pointForm}>
+            <div className="pm-point-form">
                 <input
                     placeholder="Nom du point de vente"
                     value={newPoint.nom}
                     onChange={e => setNewPoint({ ...newPoint, nom: e.target.value })}
-                    style={S.input}
+                    className="pm-input"
                 />
 
                 <AdresseAutocomplete
@@ -170,57 +163,57 @@ const StoreSection = ({ pointsDeVente, newPoint, setNewPoint, onAddPoint, onDele
                     onSelectCoords={({ lat, lng }) => setNewPoint(prev => ({ ...prev, lat, lng }))}
                 />
 
-                <button onClick={onAddPoint} style={S.btnSuccess}>+ Ajouter</button>
+                <button onClick={onAddPoint} className="pm-btn pm-btn-success">+ Ajouter</button>
             </div>
 
             {/* Aperçu coordonnées GPS */}
             {newPoint.lat && newPoint.lng ? (
-                <div style={coordPreviewStyle}>
+                <div className="pm-coord-preview">
                     <span>✅ GPS : {newPoint.lat.toFixed(5)}, {newPoint.lng.toFixed(5)}</span>
                     <a
                         href={`https://www.google.com/maps?q=${newPoint.lat},${newPoint.lng}`}
                         target="_blank"
                         rel="noreferrer"
-                        style={S.mapsLink}
+                        className="pm-maps-link"
                     >
                         🗺️ Vérifier sur Google Maps
                     </a>
                 </div>
             ) : (
                 newPoint.adresse?.trim() && (
-                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748b', fontStyle: 'italic' }}>
+                    <p className="pm-gps-hint">
                         💡 Sélectionnez une adresse dans la liste pour remplir les coordonnées GPS automatiquement.
                     </p>
                 )
             )}
 
-            <h3 style={{ ...S.sectionTitle, marginTop: 24 }}>Liste des points de vente</h3>
+            <h3 className="pm-section-title" style={{ marginTop: 24 }}>📋 Liste des points de vente</h3>
 
             {pointsDeVente.length === 0 ? (
-                <p style={S.empty}>Aucun point de vente enregistré.</p>
+                <p className="pm-empty">Aucun point de vente enregistré.</p>
             ) : (
                 pointsDeVente.map(pv => (
-                    <div key={pv._id} style={S.pointCard}>
+                    <div key={pv._id} className="pm-point-card">
                         <div>
-                            <strong>{pv.nom}</strong>
-                            <p style={{ margin: '2px 0 0', fontSize: 13, color: '#666' }}>📍 {pv.adresse}</p>
+                            <strong className="pm-point-name">{pv.nom}</strong>
+                            <p className="pm-point-address">📍 {pv.adresse}</p>
                             {pv.lat && pv.lng && (
-                                <div style={S.mapsBox}>
-                                    <span style={{ fontSize: 12, color: '#065f46' }}>
+                                <div className="pm-maps-box">
+                                    <span className="pm-gps-text">
                                         GPS : {Number(pv.lat).toFixed(5)}, {Number(pv.lng).toFixed(5)}
                                     </span>
                                     <a
                                         href={`https://www.google.com/maps?q=${pv.lat},${pv.lng}`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        style={S.mapsLink}
+                                        className="pm-maps-link"
                                     >
                                         🗺️ Voir sur Google Maps
                                     </a>
                                 </div>
                             )}
                         </div>
-                        <button onClick={() => onDeletePoint(pv)} style={S.btnDangerSm}>
+                        <button onClick={() => onDeletePoint(pv)} className="pm-btn-danger-sm">
                             🗑️
                         </button>
                     </div>
@@ -228,20 +221,6 @@ const StoreSection = ({ pointsDeVente, newPoint, setNewPoint, onAddPoint, onDele
             )}
         </div>
     );
-};
-
-const coordPreviewStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#ecfdf5',
-    border: '1px solid #a7f3d0',
-    borderRadius: 8,
-    padding: '8px 14px',
-    fontSize: 13,
-    color: '#065f46',
-    flexWrap: 'wrap',
-    marginTop: 8,
 };
 
 export default StoreSection;

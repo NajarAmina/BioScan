@@ -1,46 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   BioScan — Global Design System
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --bg-main: #f9fafb;
+  --bg-main: #f8fafc;
   --bg-card: #ffffff;
-  --bg-input: #f9fafb;
+  --bg-input: #f1f5f9;
 
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
 
-  --border-color: #e5e7eb;
-  --border-input: #e5e7eb;
+  --border-color: #e2e8f0;
+  --border-input: #cbd5e1;
 
-  --accent-color: #16a34a;
-  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.06);
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07);
+  --accent-color: #3b82f6;
+  --accent-green: #10b981;
+  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 [data-theme='dark'] {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
+  --bg-main: #0c1222;
+  --bg-card: #1a2332;
   --bg-input: #0f172a;
 
-  --text-primary: #f8fafc;
+  --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
 
-  --border-color: #334155;
-  --border-input: #334155;
+  --border-color: #1e3a5f;
+  --border-input: #2d4a6f;
 
-  --accent-color: #10b981;
-  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --accent-color: #3b82f6;
+  --accent-green: #10b981;
+  --shadow-light: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 code {
@@ -48,14 +64,37 @@ code {
     monospace;
 }
 
-/* ── Keyframes globales (déplacées depuis les composants pour éviter  */
-/*    les erreurs React `removeChild` sur les <style> inline) ──────── */
+/* ── Selection ─────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--text-primary);
+}
+
+/* ── Scrollbar (Webkit) ────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Keyframes globales ────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -67,11 +106,9 @@ code {
     transform: translateY(-100%);
     opacity: 0;
   }
-
   50% {
     opacity: 1;
   }
-
   100% {
     transform: translateY(100%);
     opacity: 0;
@@ -82,7 +119,6 @@ code {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
@@ -93,7 +129,6 @@ code {
     opacity: 0;
     backdrop-filter: blur(0px);
   }
-
   to {
     opacity: 1;
     backdrop-filter: blur(8px);
@@ -105,9 +140,15 @@ code {
     opacity: 0;
     transform: scale(0.95) translateY(10px);
   }
-
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* ── Smooth focus ring for accessibility ───────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

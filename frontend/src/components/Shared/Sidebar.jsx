@@ -147,11 +147,11 @@ const Sidebar = ({
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = {
     sidebar: {
-        width: '230px',
+        width: '240px',
         minHeight: '100vh',
         backgroundColor: 'var(--bg-card)',
         color: 'var(--text-primary)',
-        padding: '1.5rem',
+        padding: '1.5rem 1.25rem',
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
@@ -193,11 +193,11 @@ const styles = {
     activeButton: {
         width: '100%',
         padding: '10px 14px',
-        backgroundColor: 'var(--border-color)',
+        backgroundColor: 'rgba(59, 130, 246, 0.08)',
         border: 'none',
-        borderLeft: '4px solid var(--accent-color)',
-        color: 'var(--text-primary)',
-        borderRadius: '6px',
+        borderLeft: '4px solid #3b82f6',
+        color: '#3b82f6',
+        borderRadius: '10px',
         cursor: 'pointer',
         textAlign: 'left',
         fontWeight: 700,
@@ -259,15 +259,16 @@ const styles = {
     avatar: {
         width: 36,
         height: 36,
-        backgroundColor: 'var(--accent-color)',
+        background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: 700,
-        fontSize: 13,
+        fontSize: 12,
         flexShrink: 0,
         color: 'white',
+        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
     },
     userText: {
         display: 'flex',

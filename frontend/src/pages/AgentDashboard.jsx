@@ -4,9 +4,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiMenu } from 'react-icons/fi';
 import './Dashboard.css';
 
-import Sidebar from '../components/Shared/Sidebar';   // ✅ modifié
+import Sidebar from '../components/Shared/Sidebar';
 import OverviewTab from '../components/Agent/OverviewTabl';
-import ProfileTab from '../components/Agent/ProfileTab';
+import Profile from '../components/Shared/Profile';         // ✅ composant partagé
 import AiAnalysisTab from '../components/Agent/AiAnalysisTab';
 import Messagerie from '../components/Shared/Messagerie';
 import ProductManagement from '../components/Agent/ProductManagement';
@@ -41,7 +41,7 @@ const AgentDashboard = () => {
       case 'messages': return <Messagerie user={user} role="agent" />;
       case 'products': return <ProductManagement onSelectProduct={switchToAiAnalysis} />;
       case 'aiAnalysis': return <AiAnalysisTab />;
-      case 'profile': return <ProfileTab user={user} updateUser={updateUser} />;
+      case 'profile': return <Profile user={user} updateUser={updateUser} />;
       default: return <OverviewTab />;
     }
   };

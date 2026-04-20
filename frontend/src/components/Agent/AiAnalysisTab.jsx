@@ -82,7 +82,7 @@ const predictionsToTags = (predictions) => {
     if (predictions.bioscore !== undefined) push(`Bio-score prédit : ${predictions.bioscore}`, 'green');
     if (predictions.cardio_risk != null) push(`Risque cardio : ${predictions.cardio_risk === 1 ? 'Élevé' : 'Faible'}${predictions.cardio_risk_proba != null ? ` (${predictions.cardio_risk_proba}%)` : ''}`, predictions.cardio_risk === 1 ? 'red' : 'blue');
     if (predictions.diabetes_risk != null) push(`Risque diabète : ${predictions.diabetes_risk === 1 ? 'Élevé' : 'Faible'}${predictions.diabetes_risk_proba != null ? ` (${predictions.diabetes_risk_proba}%)` : ''}`, predictions.diabetes_risk === 1 ? 'red' : 'amber');
-    if (predictions.additive_exposure != null) push(`Exposition additifs : ${predictions.additive_exposure}%`, 'violet');
+
     return out;
 };
 
@@ -137,7 +137,7 @@ const IngredientLLMAnalyzer = ({
         let timer;
         if (isLlmAnalyzing) {
             timer = setTimeout(() => {
-                setWaitMsg("Le modèle Gemini est actuellement très sollicité. Des tentatives automatiques sont en cours, merci de patienter...");
+                setWaitMsg("Le modèle est actuellement très sollicité. Des tentatives automatiques sont en cours, merci de patienter...");
             }, 3000);
         } else {
             setWaitMsg('');
@@ -193,7 +193,7 @@ const IngredientLLMAnalyzer = ({
 
     return (
         <Section
-            title="Analyse LLM Ingrédient (Gemini)"
+            title="Analyse LLM Ingrédient "
             subtitle="Nom d'un ingrédient → analyse dynamique structurée (origine, NOVA, danger, recos ciblées)."
             icon={Sparkles}
             right={
@@ -204,7 +204,7 @@ const IngredientLLMAnalyzer = ({
                     className="aiBtn aiBtn--primary"
                 >
                     <Sparkles size={16} />
-                    {isLlmAnalyzing ? 'Analyse LLM…' : 'Analyser avec Gemini'}
+                    {isLlmAnalyzing ? 'Analyse LLM…' : 'Analyser '}
                 </button>
             }
         >
@@ -231,10 +231,6 @@ const IngredientLLMAnalyzer = ({
                         className="aiInput"
                         placeholder="Ex: E621, glutamate monosodique, sucre, huile de palme..."
                     />
-                    <div className="aiHint">
-                        <Pill tone="purple">LLM Gemini 1.5 Flash</Pill>
-                        <span>Retour JSON → cartes visuelles avec tous les champs (origine, dangerosité, NOVA, recos).</span>
-                    </div>
                 </div>
                 <div className="aiPanel aiPanel--light">
                     <span className="aiLabel" style={{ marginBottom: 0 }}>Résultat attendu</span>
@@ -244,7 +240,7 @@ const IngredientLLMAnalyzer = ({
                         </div>
                     ) : (
                         <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>
-                            Tapez un ingrédient et cliquez "Analyser avec Gemini"
+                            Tapez un ingrédient et cliquez "Analyser"
                         </div>
                     )}
                 </div>
@@ -321,7 +317,7 @@ const Sandbox = () => {
 
     return (
         <Section
-            title="Laboratoire de Test (Sandbox)"
+            title="Laboratoire de Test "
             subtitle="Collez des ingrédients bruts : appel du modèle /api/analyses/predict + tags locaux."
             icon={FlaskConical}
             right={
@@ -329,7 +325,7 @@ const Sandbox = () => {
                     disabled={isAnalyzing || !rawIngredients.trim()}
                     className="aiBtn aiBtn--primary">
                     <Sparkles size={16} />
-                    {isAnalyzing ? 'Analyse…' : "Lancer l'analyse"}
+                    {isAnalyzing ? 'Analyse…' : "Analyser"}
                 </button>
             }
         >
@@ -438,15 +434,7 @@ const QueueRow = ({ r, onCorrect, onValidate, onReject, busyId }) => {
                         {r.category || 'N/A'}
                     </Pill>
                 </div>
-                <div>
-                    <div className="aiConfRow">
-                        <div className="aiConfBar">
-                            <div className="aiConfFill" style={{ width: `${r.confidence}%` }} />
-                        </div>
-                        <span className="aiConfPct">{r.confidence ?? 0}%</span>
-                    </div>
-                </div>
-                <div className="aiRowActions" style={{ gap: '6px' }}>
+                <div className="aiRowActions" >
                     <button type="button" onClick={handleAnalyze} className="aiBtn aiBtn--ghost" style={{ padding: '8px 10px', fontSize: '0.75rem', color: '#6366f1' }}>
                         <Sparkles size={14} style={{ marginRight: '4px' }} /> {tags ? "Masquer IA" : "Analyse IA"}
                     </button>
@@ -493,13 +481,11 @@ const LowConfidenceQueue = ({ rows, onCorrect, onValidate, onReject, busyId }) =
         title="Centre de validation IA"
         subtitle="Liste des produits à surveiller et à valider : validation centralisée, scoring prédit et actions rapides."
         icon={AlertOctagon}
-        right={<Pill tone="red">{rows.length} produit(s)</Pill>}
     >
         <div className="aiTableWrap" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
             <div className="aiTableHead" style={{ backgroundColor: '#f1f5f9' }}>
                 <div>Produit</div>
-                <div>Risque</div>
-                <div>Confiance / Bio</div>
+                <div>Orignie</div>
                 <div style={{ textAlign: 'right' }}>Actions</div>
             </div>
             <div className="aiTableBody" style={{ padding: 0 }}>
@@ -547,26 +533,6 @@ const Metrics = ({ accuracy, timings, categories }) => (
                             <Legend />
                             <Bar dataKey="ms" name="ms" fill="#1e40af" radius={[10, 10, 0, 0]} />
                         </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-            <div className="aiMetricCard">
-                <div className="aiMetricHead">
-                    <div className="aiMetricTitle"><PieChartIcon size={16} />Répartition par risque</div>
-                    <Pill tone="slate">DB</Pill>
-                </div>
-                <div className="aiChartH">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie data={categories} dataKey="value" nameKey="name"
-                                innerRadius="55%" outerRadius="90%" stroke="transparent">
-                                {categories.map((c) => (
-                                    <Cell key={c.name} fill={c.color} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                        </PieChart>
                     </ResponsiveContainer>
                 </div>
             </div>
@@ -789,15 +755,10 @@ const AiAnalysisTab = () => {
                 <div>
                     <h2 className="aiTitle">Analyse IA</h2>
                     <p className="aiSubtitle">
-                        Données catalogue réelles + pipeline Python pour le sandbox.
+
                     </p>
                 </div>
-                <div className="aiHeaderMeta">
-                    {loading
-                        ? <Pill tone="slate">Chargement…</Pill>
-                        : <Pill tone="green">Données à jour</Pill>}
-                    <Pill tone="blue">API /dashboard/agent/ai-analysis</Pill>
-                </div>
+
             </div>
 
             <IngredientLLMAnalyzer

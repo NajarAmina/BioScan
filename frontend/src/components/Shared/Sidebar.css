@@ -1,8 +1,14 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Sidebar — Premium Professional Design
+   ═══════════════════════════════════════════════════════════════════════ */
+
 .sidebar {
-  width: 230px;
+  width: 240px;
   min-height: 100vh;
   box-sizing: border-box;
-  transition: transform 0.25s ease, width 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s ease;
+  border-right: 1px solid var(--border-color);
+  background: var(--bg-card);
 }
 
 .sidebar .sidebarTopBar {
@@ -13,18 +19,42 @@
 
 .sidebar .logoContainer {
   align-items: center;
+  margin-bottom: 2rem;
 }
 
 .sidebar .nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
+/* Menu buttons with premium hover & active states */
 .sidebar .menuButton,
 .sidebar .activeButton {
   width: 100%;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px !important;
+  font-size: 13.5px !important;
+}
+
+.sidebar .menuButton:hover {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  transform: translateX(2px);
+}
+
+.sidebar .activeButton {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%) !important;
+  border-left: 4px solid #3b82f6 !important;
+  color: #3b82f6 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.08);
+}
+
+[data-theme='dark'] .sidebar .activeButton {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.12) 100%) !important;
+  color: #60a5fa !important;
+  border-left-color: #60a5fa !important;
 }
 
 .sidebar .btnContent {
@@ -37,15 +67,26 @@
 .sidebar .btnLabel {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
+.sidebar .btnIcon {
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+}
+
+.sidebar .activeButton .btnIcon {
+  opacity: 1;
+}
+
+/* Footer */
 .sidebar .footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-top: 1rem;
+  padding-top: 1.2rem;
   border-top: 1px solid var(--border-color);
   margin-top: auto;
   flex-wrap: wrap;
@@ -59,6 +100,12 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebarCloseButton:hover {
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .sidebar.mobileOpen .sidebarCloseButton {
@@ -76,14 +123,51 @@
 .sidebar .avatar {
   width: 36px;
   height: 36px;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  font-size: 12px !important;
+}
+
+.sidebar .userName {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.sidebar .userRole {
+  font-size: 11px;
+  opacity: 0.7;
 }
 
 .sidebar .themeBtn,
 .sidebar .logoutBtn {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+.sidebar .themeBtn:hover {
+  background: var(--bg-input) !important;
+  transform: rotate(15deg);
+}
+
+.sidebar .logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: #ef4444 !important;
+  transform: scale(1.05);
+}
+
+/* ── Badges ── */
+.sidebar .badge,
+.sidebar .badgeDynamic {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* ── Mobile ── */
 @media (max-width: 1024px) {
   .sidebar {
     position: fixed;
@@ -91,12 +175,12 @@
     left: 0;
     bottom: 0;
     width: 85%;
-    max-width: 320px;
+    max-width: 300px;
     transform: translateX(-110%);
     border-right: none !important;
     border-bottom: none !important;
     padding: 1.5rem 1rem;
-    box-shadow: 1px 0 24px rgba(15, 23, 42, 0.12);
+    box-shadow: 4px 0 30px rgba(15, 23, 42, 0.15);
     z-index: 30;
     background-color: var(--bg-card);
   }

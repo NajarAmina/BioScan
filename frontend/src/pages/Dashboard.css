@@ -1,14 +1,20 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Dashboard Layout — Professional Premium Design
+   ═══════════════════════════════════════════════════════════════════════ */
+
 .dashboardContainer {
   display: flex;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--bg-main);
   width: 100%;
 }
 
 .dashboardContent {
   flex: 1;
-  padding: 30px;
+  padding: 32px 36px;
   box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .mobileMenuButton {
@@ -23,6 +29,13 @@
   justify-content: center;
   cursor: pointer;
   margin: 18px 18px 0 18px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.mobileMenuButton:hover {
+  background: var(--bg-input);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dashboardOverlay {
@@ -46,10 +59,11 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.35);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.25s ease;
     z-index: 20;
   }
 

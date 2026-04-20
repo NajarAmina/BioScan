@@ -351,7 +351,7 @@ const AddProductTab = ({ user, role = 'fournisseur', onSuccess, productToEdit = 
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0, color: '#111827' }}>
-                    {isEditMode ? '✏️ Modifier le produit' : 'Ajouter un Nouveau Produit'}
+                    {isEditMode ? ' Modifier le produit' : 'Ajouter un Nouveau Produit'}
                 </h2>
                 {isEditMode && onCancelEdit && (
                     <button type="button" onClick={onCancelEdit} style={{ padding: '10px 18px', background: '#f8fafc', color: '#1e293b', border: '1.5px solid #cbd5e1', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>
@@ -561,7 +561,7 @@ if (typeof document !== 'undefined') {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = {
-    form: { display: 'flex', flexDirection: 'column', gap: '22px', maxWidth: '650px', backgroundColor: '#ffffff', padding: '35px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)', border: '1px solid #f1f5f9' },
+    form: { display: 'flex', flexDirection: 'column', gap: '22px', maxWidth: '1900px', backgroundColor: '#ffffff', padding: '35px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)', border: '1px solid #f1f5f9' },
     input: { padding: '14px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', width: '100%', boxSizing: 'border-box', fontSize: '15px', backgroundColor: '#f8fafc', color: '#1e293b' },
     textarea: { padding: '14px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', minHeight: '100px', fontSize: '15px', resize: 'vertical', backgroundColor: '#f8fafc', color: '#1e293b', fontFamily: 'inherit' },
     autocompleteWrapper: { position: 'relative', width: '100%' },
