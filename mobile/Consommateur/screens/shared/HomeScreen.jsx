@@ -4,6 +4,7 @@ import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, ScrollView, Alert,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../../context/AuthContext';
 import useFavorites from '../../../hooks/useFavorites';
@@ -16,7 +17,7 @@ import api, { BASE_URL } from '../../../services/api';
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isConsommateur = user?.role === 'consommateur';
 
   const [allProducts, setAllProducts] = useState([]);
@@ -140,6 +141,22 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('Comments', { product: produit });
   };
 
+  // ✅ Déconnexion avec confirmation
+  const handleLogout = () => {
+    Alert.alert(
+      'Déconnexion',
+      'Voulez-vous vraiment vous déconnecter ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Déconnexion',
+          style: 'destructive',
+          onPress: () => logout(),
+        },
+      ]
+    );
+  };
+
   // Si un produit est sélectionné → affichage du détail
   if (selectedProduct) {
     return (
@@ -155,9 +172,14 @@ export default function HomeScreen({ navigation }) {
 
   const itemsToShow = showAll ? displayProducts : displayProducts.slice(0, 6);
 
+  // ✅ Grouper les produits par paires pour la grille 2 colonnes
+  const productRows = Array.from(
+    { length: Math.ceil(itemsToShow.length / 2) },
+    (_, i) => itemsToShow.slice(i * 2, i * 2 + 2)
+  );
+
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-
 
       {/* ── HEADER ── */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
@@ -178,7 +200,12 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         ) : (
-          <Text style={styles.headerWelcome}>👋 {user.prenom || user.email}</Text>
+          <View style={styles.headerBtns}>
+            <Text style={styles.headerWelcome}>👋 {user.prenom || user.email}</Text>
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+              <MaterialIcons name="logout" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
 
@@ -254,21 +281,28 @@ export default function HomeScreen({ navigation }) {
             </View>
           ) : (
             <>
-              {itemsToShow.map((produit) => {
-                const pid = produit._id || produit.id;
-                return (
-                  <ProductCard
-                    key={pid}
-                    produit={produit}
-                    user={user}
-                    isFavorite={isFavorite(pid)}
-                    onFavorite={() => handleFavorite(produit)}
-                    onComment={() => handleComment(produit)}
-                    onPress={() => handleSelectProduct(produit)}
-                    baseUrl={BASE_URL}
-                  />
-                );
-              })}
+              {/* ✅ Grille 2 colonnes */}
+              {productRows.map((pair, rowIndex) => (
+                <View key={rowIndex} style={styles.productRow}>
+                  {pair.map((produit) => {
+                    const pid = produit._id || produit.id;
+                    return (
+                      <ProductCard
+                        key={pid}
+                        produit={produit}
+                        user={user}
+                        isFavorite={isFavorite(pid)}
+                        onFavorite={() => handleFavorite(produit)}
+                        onComment={() => handleComment(produit)}
+                        onPress={() => handleSelectProduct(produit)}
+                        baseUrl={BASE_URL}
+                      />
+                    );
+                  })}
+                  {/* Remplissage si nombre impair */}
+                  {pair.length === 1 && <View style={{ flex: 1 }} />}
+                </View>
+              ))}
 
               {displayProducts.length > 6 && !searchQuery.trim() && (
                 <TouchableOpacity
@@ -301,7 +335,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    // paddingTop est appliqué dynamiquement via insets.top + 10
   },
   headerLogo: {
     color: '#fff',
@@ -311,6 +344,7 @@ const styles = StyleSheet.create({
   },
   headerBtns: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   headerLoginBtn: {
@@ -341,6 +375,17 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     fontSize: 14,
     fontWeight: '600',
+  },
+
+  // ✅ Bouton déconnexion
+  logoutBtn: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 20,
+    padding: 6,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // ── Search section ──
@@ -427,6 +472,13 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     marginBottom: 16,
     textAlign: 'center',
+  },
+
+  // ✅ Grille 2 colonnes
+  productRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
   },
 
   empty: { alignItems: 'center', padding: 40, gap: 12 },

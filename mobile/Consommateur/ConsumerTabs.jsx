@@ -34,11 +34,12 @@ function HomeStackNav() {
         headerTitleStyle: { fontWeight: 'bold' },
       }}
     >
-      <HomeStack.Screen name="HomeMain" component={HomeScreen} options={{ title: 'BioScan' }} />
+      <HomeStack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
       <HomeStack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Scanner' }} />
       <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Produit' }} />
       <HomeStack.Screen name="Login" component={LoginScreen} options={{ title: 'Connexion' }} />
       <HomeStack.Screen name="Register" component={RegisterScreen} options={{ title: 'Inscription' }} />
+      <HomeStack.Screen name="Comments" component={CommentsScreen} options={{ title: 'Commentaires' }} />
     </HomeStack.Navigator>
   );
 }

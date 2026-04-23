@@ -1,4 +1,4 @@
-// mobile/components/ProductCard.jsx
+// mobile/Consommateur/components/ProductCard.jsx
 import React from 'react';
 import {
   View, Text, Image, TouchableOpacity, StyleSheet,
@@ -33,7 +33,7 @@ export default function ProductCard({
         />
       ) : (
         <View style={styles.noImage}>
-          <Text style={{ fontSize: 40 }}>🌿</Text>
+          <Text style={{ fontSize: 30 }}>🌿</Text>
         </View>
       )}
 
@@ -50,7 +50,7 @@ export default function ProductCard({
           style={styles.actionBtn}
           onPress={(e) => { e.stopPropagation?.(); onFavorite && onFavorite(produit); }}
         >
-          <Text style={{ fontSize: 16 }}>{isFavorite ? '❤️' : '🤍'}</Text>
+          <Text style={{ fontSize: 13 }}>{isFavorite ? '❤️' : '🤍'}</Text>
         </TouchableOpacity>
 
         {/* Commentaire */}
@@ -59,7 +59,7 @@ export default function ProductCard({
             style={styles.actionBtn}
             onPress={(e) => { e.stopPropagation?.(); onComment(produit); }}
           >
-            <Text style={{ fontSize: 16 }}>💬</Text>
+            <Text style={{ fontSize: 13 }}>💬</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -69,11 +69,15 @@ export default function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: 14,
-    marginBottom: 14, overflow: 'hidden',
-    shadowColor: '#000', shadowOpacity: 0.07,
-    shadowRadius: 10, elevation: 3,
-    height: 200,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 3,
+    height: 160,  // ✅ réduit (était 200)
+    flex: 1,      // ✅ occupe la moitié de la largeur dans la grille
   },
   image: { width: '100%', height: '100%' },
   noImage: {
@@ -83,17 +87,17 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: 12,
+    padding: 8,
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
-  name: { color: '#fff', fontSize: 15, fontWeight: '600', marginBottom: 2 },
-  subtitle: { color: 'rgba(255,255,255,0.75)', fontSize: 12 },
+  name: { color: '#fff', fontSize: 12, fontWeight: '600', marginBottom: 1 },
+  subtitle: { color: 'rgba(255,255,255,0.75)', fontSize: 10 },
   actions: {
-    position: 'absolute', top: 10, right: 10,
-    flexDirection: 'column', gap: 8,
+    position: 'absolute', top: 6, right: 6,
+    flexDirection: 'column', gap: 5,
   },
   actionBtn: {
-    width: 34, height: 34, borderRadius: 17,
+    width: 28, height: 28, borderRadius: 14,
     backgroundColor: 'rgba(255,255,255,0.85)',
     justifyContent: 'center', alignItems: 'center',
   },
