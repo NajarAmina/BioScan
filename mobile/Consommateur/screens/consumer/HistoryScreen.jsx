@@ -11,8 +11,8 @@ export default function HistoryScreen({ navigation }) {
   const { user } = useAuth();
   const isConsommateur = user?.role === 'consommateur';
   const { searchHistory, removeFromHistory, clearHistory } = useHistory(
-    isConsommateur ? user?.id : null
-  );
+  isConsommateur ? (user?._id || user?.id) : null
+);
 
   const handleClearAll = () => {
     Alert.alert('Confirmation', 'Supprimer tout votre historique ?', [

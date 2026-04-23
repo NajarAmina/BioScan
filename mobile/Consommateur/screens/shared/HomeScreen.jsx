@@ -4,6 +4,7 @@ import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, ScrollView, Alert,
 } from 'react-native';
+
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../../context/AuthContext';
@@ -179,7 +180,12 @@ export default function HomeScreen({ navigation }) {
   );
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView 
+      style={styles.container} 
+      keyboardShouldPersistTaps="handled" 
+      contentContainerStyle={{
+    paddingBottom: 80, // 
+  }} >
 
       {/* ── HEADER ── */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
@@ -242,13 +248,10 @@ export default function HomeScreen({ navigation }) {
             onSubmitEditing={handleSearch}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearBtn}>
-              <Text style={{ color: '#9ca3af', fontSize: 16 }}>✕</Text>
+            <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+              <MaterialIcons name="search" size={20} color="#fff" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-            <Text style={styles.searchBtnText}>🔍</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Bouton scanner */}
@@ -438,13 +441,13 @@ const styles = StyleSheet.create({
   },
   clearBtn: { padding: 4 },
   searchBtn: {
-    backgroundColor: '#16a34a',
-    borderRadius: 20,
-    width: 34,
-    height: 34,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  backgroundColor: '#16a34a',
+  borderRadius: 20,
+  paddingHorizontal: 12,  
+  height: 34,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
   searchBtnText: { fontSize: 16 },
 
   // ── Scanner button ──
@@ -465,7 +468,10 @@ const styles = StyleSheet.create({
   loadingBox: { alignItems: 'center', padding: 40, gap: 12 },
   loadingText: { color: '#64748b', fontSize: 15 },
 
-  productsSection: { padding: 16 },
+  productsSection: { 
+  padding: 16,
+  paddingBottom: 100, 
+},
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',

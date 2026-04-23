@@ -1,11 +1,11 @@
-// mobile/screens/shared/ScannerScreen.jsx
+// mobile/Consommateur/screens/shared/ScannerScreen.jsx
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Alert, ActivityIndicator, ScrollView,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import api, { BASE_URL } from '../../../services/api';
+import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import useHistory from '../../../hooks/useHistory';
 import ProductDetailScreen from './ProductDetailScreen';
@@ -25,6 +25,27 @@ export default function ScannerScreen({ navigation }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [scanned, setScanned] = useState(false);
 
+  // ✅ Attend que la permission soit chargée avant d'ouvrir la caméra
+  useEffect(() => {
+    if (permission === null) return; // pas encore chargée
+
+    if (permission.granted) {
+      // Permission déjà accordée → ouvre directement
+      setScanned(false);
+      setShowCamera(true);
+    } else {
+      // Demande la permission puis ouvre
+      requestPermission().then(({ granted }) => {
+        if (granted) {
+          setScanned(false);
+          setShowCamera(true);
+        } else {
+          Alert.alert('Permission refusée', "Autorisez l'accès à la caméra dans les paramètres.");
+        }
+      });
+    }
+  }, [permission]);  // se déclenche quand permission est chargée
+
   const handleBarcodeScan = async (code) => {
     const query = (code || barcode).trim();
     if (!query) return;
@@ -36,15 +57,17 @@ export default function ScannerScreen({ navigation }) {
       const res = await api.post('/produits/scan', { code_barre: query });
       const product = res.data;
 
-      // Enrichissement IA
       try {
         const ingredients = product?.ingredients || [];
         const text = ingredients.map((i) => i.nom || '').join(', ') || product?.nom || '';
         const aiRes = await api.post('/analyses/predict', { ingredients_text: text });
         const predictions = aiRes.data.predictions || {};
-        setScannedProduct({ ...product, ai_predictions: predictions,
+        setScannedProduct({
+          ...product,
+          ai_predictions: predictions,
           scoreBio: predictions.bioscore ?? product.scoreBio,
-          nova_group: predictions.nova_group ?? product.nova_group });
+          nova_group: predictions.nova_group ?? product.nova_group,
+        });
       } catch {
         setScannedProduct(product);
       }
@@ -65,14 +88,7 @@ export default function ScannerScreen({ navigation }) {
     handleBarcodeScan(data);
   };
 
-  const openCamera = async () => {
-    if (!permission?.granted) {
-      const { granted } = await requestPermission();
-      if (!granted) {
-        Alert.alert('Permission refusée', 'Autorisez l\'accès à la caméra dans les paramètres.');
-        return;
-      }
-    }
+  const openCamera = () => {
     setScanned(false);
     setShowCamera(true);
   };
@@ -81,7 +97,13 @@ export default function ScannerScreen({ navigation }) {
     return (
       <ProductDetailScreen
         product={scannedProduct}
-        onBack={() => { setScannedProduct(null); setBarcode(''); setScanError(false); }}
+        onBack={() => {
+          setScannedProduct(null);
+          setBarcode('');
+          setScanError(false);
+          setScanned(false);
+          setShowCamera(true); // ✅ rouvre caméra après retour
+        }}
         isFavorite={isFavorite}
         onFavorite={addFavorite}
         user={user}
@@ -96,7 +118,7 @@ export default function ScannerScreen({ navigation }) {
         Scannez ou tapez un code-barres pour analyser un produit
       </Text>
 
-      {/* Caméra */}
+      {/* Caméra — s'affiche directement sans bouton intermédiaire */}
       {showCamera ? (
         <View style={styles.cameraContainer}>
           <CameraView
@@ -113,9 +135,12 @@ export default function ScannerScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       ) : (
-        <TouchableOpacity style={styles.cameraBtn} onPress={openCamera}>
-          <Text style={styles.cameraBtnText}>📷  Ouvrir la caméra</Text>
-        </TouchableOpacity>
+        // Bouton visible uniquement si caméra fermée manuellement ou refus permission
+        !isAnalyzing && (
+          <TouchableOpacity style={styles.cameraBtn} onPress={openCamera}>
+            <Text style={styles.cameraBtnText}>📷  Ouvrir la caméra</Text>
+          </TouchableOpacity>
+        )
       )}
 
       {/* Séparateur */}
@@ -156,7 +181,7 @@ export default function ScannerScreen({ navigation }) {
         </View>
       )}
 
-      {/* Erreur */}
+      {/* Erreur produit introuvable */}
       {scanError && (
         <View style={styles.errorBox}>
           <Text style={styles.errorTitle}>⚠️ Produit introuvable</Text>

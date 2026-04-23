@@ -12,7 +12,7 @@ import { BASE_URL } from '../../../services/api';
 
 export default function FavoritesScreen({ navigation }) {
   const { user } = useAuth();
-  const { favorites, isFavorite, removeFavorite } = useFavorites(user?.id, user?.role);
+ const { favorites, isFavorite, removeFavorite } = useFavorites(user?._id || user?.id, user?.role);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const getProductId = (p) => p?._id || p?.id_produit || p?.id;

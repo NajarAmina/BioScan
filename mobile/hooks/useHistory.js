@@ -1,50 +1,52 @@
 // mobile/hooks/useHistory.js
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../services/api';
 
 const MAX_HISTORY = 10;
 
 const useHistory = (userId) => {
-  const storageKey = userId ? `history_${userId}` : null;
   const [searchHistory, setSearchHistory] = useState([]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!storageKey) { setSearchHistory([]); return; }
-      try {
-        const saved = await AsyncStorage.getItem(storageKey);
-        setSearchHistory(saved ? JSON.parse(saved) : []);
-      } catch { setSearchHistory([]); }
-    };
-    load();
-  }, [storageKey]);
-
-  const persist = async (data) => {
-    if (!storageKey) return;
-    try { await AsyncStorage.setItem(storageKey, JSON.stringify(data)); } catch {}
+  const loadHistory = async () => {
+    if (!userId) { setSearchHistory([]); return; }
+    try {
+      const res = await api.get(`/historique/${userId}`);
+      setSearchHistory(Array.isArray(res.data) ? res.data : []);
+    } catch { setSearchHistory([]); }
   };
+
+  useEffect(() => {
+    loadHistory();
+  }, [userId]); // ✅ se re-déclenche quand userId change (login async)
 
   const addToHistory = async (query) => {
-    if (!query?.trim()) return;
-    const entry = { id: Date.now(), query: query.trim(), date: new Date().toISOString() };
-    setSearchHistory((prev) => {
-      const next = [entry, ...prev].slice(0, MAX_HISTORY);
-      persist(next);
-      return next;
-    });
+    if (!query?.trim() || !userId) return;
+    try {
+      await api.post('/historique', { userId, query: query.trim() });
+      // ✅ Recharge depuis l'API pour avoir les vrais IDs serveur
+      await loadHistory();
+    } catch {
+      // fallback local seulement si vraiment nécessaire
+      const entry = { id: Date.now(), query: query.trim(), date: new Date().toISOString() };
+      setSearchHistory((prev) => [entry, ...prev].slice(0, MAX_HISTORY));
+    }
   };
 
-  const removeFromHistory = (id) => {
-    setSearchHistory((prev) => {
-      const next = prev.filter((h) => h.id !== id);
-      persist(next);
-      return next;
-    });
+  const removeFromHistory = async (id) => {
+    try {
+      await api.delete(`/historique/${userId}/${id}`);
+      // ✅ Filtre sur _id ou id selon ta réponse API
+      setSearchHistory((prev) =>
+        prev.filter((h) => String(h._id || h.id) !== String(id))
+      );
+    } catch {}
   };
 
   const clearHistory = async () => {
-    setSearchHistory([]);
-    if (storageKey) await AsyncStorage.removeItem(storageKey);
+    try {
+      await api.delete(`/historique/${userId}`);
+      setSearchHistory([]);
+    } catch {}
   };
 
   return { searchHistory, addToHistory, removeFromHistory, clearHistory };

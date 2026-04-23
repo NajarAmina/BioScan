@@ -1,37 +1,33 @@
 // mobile/hooks/useFavorites.js
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import api from '../services/api';
 
 const useFavorites = (userId, userRole) => {
-  const storageKey = userId ? `favorites_${userId}` : null;
   const isConsommateur = userRole === 'consommateur';
   const [favorites, setFavorites] = useState([]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!storageKey || !isConsommateur) { setFavorites([]); return; }
-      try {
-        const saved = await AsyncStorage.getItem(storageKey);
-        setFavorites(saved ? JSON.parse(saved) : []);
-      } catch { setFavorites([]); }
-    };
-    load();
-  }, [storageKey, isConsommateur]);
-
-  const persist = async (data) => {
-    if (!storageKey) return;
-    try { await AsyncStorage.setItem(storageKey, JSON.stringify(data)); } catch {}
+  const loadFavorites = async () => {
+    if (!userId || !isConsommateur) { setFavorites([]); return; }
+    try {
+      const res = await api.get(`/favoris/${userId}`);
+      setFavorites(Array.isArray(res.data) ? res.data : []);
+    } catch { setFavorites([]); }
   };
 
-  const getProductId = (p) => p?._id || p?.id_produit || p?.id;
+  useEffect(() => {
+    loadFavorites();
+  }, [userId, isConsommateur]);
+
+  // ✅ Normalise l'ID peu importe la structure de l'objet
+  const getProductId = (p) => p?._id || p?.id_produit || p?.id || p?.productId;
 
   const isFavorite = (productId) =>
     favorites.some((f) => String(getProductId(f)) === String(productId));
 
-  const addFavorite = (product) => {
+  const addFavorite = async (product) => {
     if (!userId) {
-      Alert.alert('Connexion requise', 'Vous devez être connecté pour ajouter un favori.');
+      Alert.alert('Connexion requise', 'Vous devez être connecté.');
       return;
     }
     if (!isConsommateur) {
@@ -44,21 +40,26 @@ const useFavorites = (userId, userRole) => {
       Alert.alert('Déjà ajouté', `${product.nom} est déjà dans vos favoris.`);
       return;
     }
-    setFavorites((prev) => {
-      const next = [...prev, product];
-      persist(next);
-      return next;
-    });
-    Alert.alert('Favori ajouté', `${product.nom} ajouté aux favoris !`);
+    try {
+      await api.post('/favoris', { userId, productId });
+      // ✅ Recharge depuis l'API → structure cohérente garantie
+      await loadFavorites();
+      Alert.alert('Favori ajouté ✅', `${product.nom} ajouté aux favoris !`);
+    } catch {
+      Alert.alert('Erreur', "Impossible d'ajouter le favori.");
+    }
   };
 
-  const removeFavorite = (productId) => {
+  const removeFavorite = async (productId) => {
     if (!isConsommateur) return;
-    setFavorites((prev) => {
-      const next = prev.filter((f) => String(getProductId(f)) !== String(productId));
-      persist(next);
-      return next;
-    });
+    try {
+      await api.delete(`/favoris/${userId}/${productId}`);
+      setFavorites((prev) =>
+        prev.filter((f) => String(getProductId(f)) !== String(productId))
+      );
+    } catch {
+      Alert.alert('Erreur', 'Impossible de supprimer le favori.');
+    }
   };
 
   const clearFavorites = () => {
@@ -68,8 +69,10 @@ const useFavorites = (userId, userRole) => {
         text: 'Supprimer',
         style: 'destructive',
         onPress: async () => {
-          setFavorites([]);
-          if (storageKey) await AsyncStorage.removeItem(storageKey);
+          try {
+            await api.delete(`/favoris/${userId}`);
+            setFavorites([]);
+          } catch {}
         },
       },
     ]);
