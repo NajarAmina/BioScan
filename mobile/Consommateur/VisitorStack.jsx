@@ -5,6 +5,7 @@ import HomeScreen from './screens/shared/HomeScreen';
 import ScannerScreen from './screens/shared/ScannerScreen';
 import ProductDetailScreen from './screens/shared/ProductDetailScreen';
 import LoginScreen from './screens/auth/LoginScreen';
+import ForgotPasswordScreen from './screens/auth/ForgotPasswordScreen';
 import RegisterScreen from './screens/auth/RegisterScreen';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,8 @@ export default function VisitorStack() {
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Détail produit' }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Connexion' }} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Inscription' }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }}
+/>
     </Stack.Navigator>
   );
 }

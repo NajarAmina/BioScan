@@ -259,7 +259,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.scanBtn}
           onPress={() => navigation.navigate('Scanner')}
         >
-          <Text style={styles.scanBtnText}>▌▌▌  Scanner un code-barres</Text>
+          <Text style={styles.scanBtnText}> Scanner un code-barres</Text>
         </TouchableOpacity>
       </View>
 
