@@ -53,6 +53,7 @@ app.use('/api/pointDeVente', require('./routes/pointDeVente.routes'));
 app.use('/api/analyses', require('./routes/analyse.routes'));
 app.use('/api/commentaires', require('./routes/commentaire.routes'));
 app.use('/api/historiques', require('./routes/historique.routes'));
+app.use('/api/historique', require('./routes/historique.routes'));
 app.use('/api/favoris', require('./routes/favoris.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/messages', require('./routes/message.routes'));

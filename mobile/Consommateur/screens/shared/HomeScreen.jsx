@@ -207,7 +207,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : (
           <View style={styles.headerBtns}>
-            <Text style={styles.headerWelcome}>👋 {user.prenom || user.email}</Text>
+            <Text style={styles.headerWelcome}> {user.prenom || user.email}</Text>
             <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
               <MaterialIcons name="logout" size={20} color="#fff" />
             </TouchableOpacity>
@@ -272,7 +272,7 @@ export default function HomeScreen({ navigation }) {
       ) : (
         <View style={styles.productsSection}>
           <Text style={styles.sectionTitle}>
-            {searchQuery.trim() ? '🔍 Résultats' : 'Nos Produits'}
+            {searchQuery.trim() ? ' Résultats' : 'Nos Produits'}
           </Text>
 
           {displayProducts.length === 0 ? (

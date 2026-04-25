@@ -2,15 +2,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, ActivityIndicator, Image, Alert, KeyboardAvoidingView, Platform,
+  StyleSheet, ActivityIndicator, Image, Alert,
+  KeyboardAvoidingView, Platform, Keyboard,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Camera, Send, X } from 'lucide-react-native';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';
 
 export default function ChatbotScreen() {
   const { user } = useAuth();
   const listRef = useRef(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 96 : 80;
 
   const [messages, setMessages] = useState([{
     id: 1,
@@ -23,17 +27,28 @@ export default function ChatbotScreen() {
   const [imageBase64, setImageBase64] = useState(null);
 
   useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
+
+  useEffect(() => {
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
   }, [messages, isTyping]);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission refusée', 'Autorisez l\'accès à la galerie.');
+      Alert.alert('Permission refusée', "Autorisez l'accès à la galerie.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'], // ✅ Corrigé : remplace ImagePicker.MediaTypeOptions.Images (déprécié)
       base64: true,
       quality: 0.7,
     });
@@ -52,7 +67,7 @@ export default function ChatbotScreen() {
     const userMsg = {
       id: Date.now(),
       from: 'user',
-      text: text || '📷 Image envoyée',
+      text: text || 'Image envoyée',
       image: imageUri,
       imageBase64,
     };
@@ -100,15 +115,17 @@ export default function ChatbotScreen() {
     );
   };
 
+  const canSend = input.trim().length > 0 || !!imageBase64;
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={90}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 186 : 80}
     >
       {/* En-tête */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🌿 Assistant BioScan</Text>
+        <Text style={styles.headerTitle}>Assistant BioScan</Text>
         <Text style={styles.headerSub}>Posez vos questions sur les aliments</Text>
       </View>
 
@@ -119,6 +136,8 @@ export default function ChatbotScreen() {
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.messagesList}
         renderItem={renderMessage}
+        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => listRef.current?.scrollToEnd({ animated: false })}
         ListFooterComponent={
           isTyping ? (
             <View style={[styles.msgWrapperBot, { marginBottom: 8 }]}>
@@ -135,7 +154,7 @@ export default function ChatbotScreen() {
         <View style={styles.previewRow}>
           <Image source={{ uri: imageUri }} style={styles.previewImage} resizeMode="cover" />
           <TouchableOpacity style={styles.removeImageBtn} onPress={removeImage}>
-            <Text style={styles.removeImageText}>✕</Text>
+            <X size={12} color="#fff" strokeWidth={2.5} />
           </TouchableOpacity>
           <Text style={styles.previewLabel}>Image prête à envoyer</Text>
         </View>
@@ -144,8 +163,9 @@ export default function ChatbotScreen() {
       {/* Zone de saisie */}
       <View style={styles.inputArea}>
         <TouchableOpacity style={styles.imagePickerBtn} onPress={pickImage}>
-          <Text style={{ fontSize: 20 }}>📷</Text>
+          <Camera size={20} color="#16a34a" strokeWidth={2} />
         </TouchableOpacity>
+
         <TextInput
           style={styles.input}
           value={input}
@@ -154,13 +174,15 @@ export default function ChatbotScreen() {
           placeholderTextColor="#9ca3af"
           multiline
           maxLength={500}
+          onFocus={() => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 300)}
         />
+
         <TouchableOpacity
-          style={[styles.sendBtn, (!input.trim() && !imageBase64) && styles.sendBtnDisabled]}
+          style={[styles.sendBtn, !canSend && styles.sendBtnDisabled]}
           onPress={handleSend}
-          disabled={!input.trim() && !imageBase64}
+          disabled={!canSend}
         >
-          <Text style={styles.sendBtnText}>➤</Text>
+          <Send size={18} color="#fff" strokeWidth={2} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -168,7 +190,11 @@ export default function ChatbotScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    paddingBottom: Platform.OS === 'ios' ? 96 : 80,
+  },
 
   header: {
     backgroundColor: '#16a34a', padding: 16, paddingTop: 12,
@@ -206,7 +232,6 @@ const styles = StyleSheet.create({
     width: 22, height: 22, borderRadius: 11,
     backgroundColor: '#ef4444', justifyContent: 'center', alignItems: 'center',
   },
-  removeImageText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   previewLabel: { color: '#64748b', fontSize: 13 },
 
   inputArea: {
@@ -216,7 +241,8 @@ const styles = StyleSheet.create({
   },
   imagePickerBtn: {
     width: 40, height: 40, borderRadius: 10,
-    borderWidth: 1, borderColor: '#e2e8f0',
+    borderWidth: 1.5, borderColor: '#e2e8f0',
+    backgroundColor: '#f0fdf4',
     justifyContent: 'center', alignItems: 'center',
   },
   input: {
@@ -229,5 +255,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#16a34a', justifyContent: 'center', alignItems: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },
-  sendBtnText: { color: '#fff', fontSize: 18 },
 });

@@ -4,6 +4,7 @@ import {
   View, Text, FlatList, TouchableOpacity,
   StyleSheet, Alert,
 } from 'react-native';
+import { Trash2, X } from 'lucide-react-native';
 import { useAuth } from '../../../context/AuthContext';
 import useHistory from '../../../hooks/useHistory';
 
@@ -11,8 +12,8 @@ export default function HistoryScreen({ navigation }) {
   const { user } = useAuth();
   const isConsommateur = user?.role === 'consommateur';
   const { searchHistory, removeFromHistory, clearHistory } = useHistory(
-  isConsommateur ? (user?._id || user?.id) : null
-);
+    isConsommateur ? (user?._id || user?.id) : null
+  );
 
   const handleClearAll = () => {
     Alert.alert('Confirmation', 'Supprimer tout votre historique ?', [
@@ -24,7 +25,6 @@ export default function HistoryScreen({ navigation }) {
   if (searchHistory.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={{ fontSize: 60, marginBottom: 16 }}>🕐</Text>
         <Text style={styles.emptyTitle}>Aucun historique</Text>
         <Text style={styles.emptyText}>Vos recherches apparaîtront ici</Text>
         <TouchableOpacity
@@ -44,9 +44,10 @@ export default function HistoryScreen({ navigation }) {
       contentContainerStyle={styles.list}
       ListHeaderComponent={
         <View style={styles.headerRow}>
-          <Text style={styles.header}>🕐 Mon Historique</Text>
+          <Text style={styles.header}>Mon Historique</Text>
           <TouchableOpacity style={styles.clearBtn} onPress={handleClearAll}>
-            <Text style={styles.clearBtnText}>🗑️ Tout supprimer</Text>
+            <Trash2 size={16} color="#ef4444" strokeWidth={2} />
+            <Text style={styles.clearBtnText}>Tout supprimer</Text>
           </TouchableOpacity>
         </View>
       }
@@ -58,20 +59,12 @@ export default function HistoryScreen({ navigation }) {
               {new Date(item.date).toLocaleString('fr-FR')}
             </Text>
           </View>
-          <View style={styles.itemActions}>
-            <TouchableOpacity
-              style={styles.reSearchBtn}
-              onPress={() => navigation.navigate('HomeMain', { searchQuery: item.query })}
-            >
-              <Text style={styles.reSearchText}>🔍</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => removeFromHistory(item.id)}
-            >
-              <Text style={styles.deleteBtnText}>✕</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={() => removeFromHistory(item.id)}
+          >
+            <X size={16} color="#ef4444" strokeWidth={2.5} />
+          </TouchableOpacity>
         </View>
       )}
     />
@@ -86,6 +79,7 @@ const styles = StyleSheet.create({
   },
   header: { fontSize: 22, fontWeight: '800', color: '#0f172a' },
   clearBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
     borderWidth: 1, borderColor: '#ef4444', borderRadius: 10,
     paddingHorizontal: 12, paddingVertical: 6,
   },
@@ -111,15 +105,8 @@ const styles = StyleSheet.create({
   itemLeft: { flex: 1, gap: 4 },
   itemQuery: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   itemDate: { fontSize: 12, color: '#94a3b8' },
-  itemActions: { flexDirection: 'row', gap: 8 },
-  reSearchBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0fdf4', justifyContent: 'center', alignItems: 'center',
-  },
-  reSearchText: { fontSize: 16 },
   deleteBtn: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: '#fef2f2', justifyContent: 'center', alignItems: 'center',
   },
-  deleteBtnText: { color: '#ef4444', fontWeight: '700', fontSize: 14 },
 });

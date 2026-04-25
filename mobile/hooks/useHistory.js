@@ -8,48 +8,51 @@ const useHistory = (userId) => {
   const [searchHistory, setSearchHistory] = useState([]);
 
   const loadHistory = async () => {
-    if (!userId) { setSearchHistory([]); return; }
+    if (!userId || userId === 'undefined') { setSearchHistory([]); return; }
     try {
-      const res = await api.get(`/historique/${userId}`);
-      setSearchHistory(Array.isArray(res.data) ? res.data : []);
+      const res = await api.get(`/historique/user/${userId}`);
+      setSearchHistory(Array.isArray(res.data) ? res.data.filter(h => h.query) : []);
     } catch { setSearchHistory([]); }
   };
 
-  useEffect(() => {
-    loadHistory();
-  }, [userId]); // ✅ se re-déclenche quand userId change (login async)
+  useEffect(() => { loadHistory(); }, [userId]);
 
+  // ✅ Pour recherche TEXTE — HomeScreen (searchQuery)
   const addToHistory = async (query) => {
-    if (!query?.trim() || !userId) return;
+    if (!query?.trim() || !userId || userId === 'undefined') return;
     try {
-      await api.post('/historique', { userId, query: query.trim() });
-      // ✅ Recharge depuis l'API pour avoir les vrais IDs serveur
+      await api.post('/historique/search', { userId, query: query.trim() });
       await loadHistory();
     } catch {
-      // fallback local seulement si vraiment nécessaire
       const entry = { id: Date.now(), query: query.trim(), date: new Date().toISOString() };
-      setSearchHistory((prev) => [entry, ...prev].slice(0, MAX_HISTORY));
+      setSearchHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY));
     }
+  };
+
+  // ✅ Pour scan PRODUIT — ScannerScreen (productId MongoDB)
+  const addProductToHistory = async (productId) => {
+    if (!productId || !userId || userId === 'undefined') return;
+    try {
+      await api.post('/historique', { userId, productId });
+      await loadHistory();
+    } catch {}
   };
 
   const removeFromHistory = async (id) => {
     try {
-      await api.delete(`/historique/${userId}/${id}`);
-      // ✅ Filtre sur _id ou id selon ta réponse API
-      setSearchHistory((prev) =>
-        prev.filter((h) => String(h._id || h.id) !== String(id))
-      );
+      await api.delete(`/historique/${id}`);
     } catch {}
+    setSearchHistory(prev => prev.filter(h => String(h.id) !== String(id)));
   };
 
   const clearHistory = async () => {
     try {
-      await api.delete(`/historique/${userId}`);
+      await api.delete(`/historique/user/${userId}/all`);
       setSearchHistory([]);
     } catch {}
   };
 
-  return { searchHistory, addToHistory, removeFromHistory, clearHistory };
+  return { searchHistory, addToHistory, addProductToHistory, removeFromHistory, clearHistory };
 };
 
 export default useHistory;

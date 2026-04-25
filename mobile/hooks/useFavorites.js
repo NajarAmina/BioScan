@@ -10,39 +10,26 @@ const useFavorites = (userId, userRole) => {
   const loadFavorites = async () => {
     if (!userId || !isConsommateur) { setFavorites([]); return; }
     try {
-      const res = await api.get(`/favoris/${userId}`);
+      const res = await api.get(`/favoris/user/${userId}`);
       setFavorites(Array.isArray(res.data) ? res.data : []);
     } catch { setFavorites([]); }
   };
 
-  useEffect(() => {
-    loadFavorites();
-  }, [userId, isConsommateur]);
+  useEffect(() => { loadFavorites(); }, [userId, isConsommateur]);
 
-  // ✅ Normalise l'ID peu importe la structure de l'objet
-  const getProductId = (p) => p?._id || p?.id_produit || p?.id || p?.productId;
+  const getProductId = (p) => p?._id || p?.id_produit || p?.id;
 
   const isFavorite = (productId) =>
     favorites.some((f) => String(getProductId(f)) === String(productId));
 
   const addFavorite = async (product) => {
-    if (!userId) {
-      Alert.alert('Connexion requise', 'Vous devez être connecté.');
-      return;
-    }
-    if (!isConsommateur) {
-      Alert.alert('Accès refusé', 'Seuls les consommateurs peuvent ajouter des favoris.');
-      return;
-    }
+    if (!userId) { Alert.alert('Connexion requise', 'Vous devez être connecté.'); return; }
+    if (!isConsommateur) { Alert.alert('Accès refusé', 'Seuls les consommateurs peuvent ajouter des favoris.'); return; }
     const productId = getProductId(product);
     if (!productId) return;
-    if (isFavorite(productId)) {
-      Alert.alert('Déjà ajouté', `${product.nom} est déjà dans vos favoris.`);
-      return;
-    }
+    if (isFavorite(productId)) { Alert.alert('Déjà ajouté', `${product.nom} est déjà dans vos favoris.`); return; }
     try {
       await api.post('/favoris', { userId, productId });
-      // ✅ Recharge depuis l'API → structure cohérente garantie
       await loadFavorites();
       Alert.alert('Favori ajouté ✅', `${product.nom} ajouté aux favoris !`);
     } catch {
@@ -53,7 +40,7 @@ const useFavorites = (userId, userRole) => {
   const removeFavorite = async (productId) => {
     if (!isConsommateur) return;
     try {
-      await api.delete(`/favoris/${userId}/${productId}`);
+      await api.delete(`/favoris/user/${userId}/${productId}`);
       setFavorites((prev) =>
         prev.filter((f) => String(getProductId(f)) !== String(productId))
       );
@@ -66,11 +53,10 @@ const useFavorites = (userId, userRole) => {
     Alert.alert('Confirmation', 'Supprimer tous vos favoris ?', [
       { text: 'Annuler', style: 'cancel' },
       {
-        text: 'Supprimer',
-        style: 'destructive',
+        text: 'Supprimer', style: 'destructive',
         onPress: async () => {
           try {
-            await api.delete(`/favoris/${userId}`);
+            await api.delete(`/favoris/user/${userId}/all`);
             setFavorites([]);
           } catch {}
         },

@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const ctrl = require('../controllers/historique.controller');
 
-const historiqueController = require('../controllers/historique.controller');
+router.post('/', ctrl.createHistorique);
+router.get('/', ctrl.getAllHistoriques);
 
+// ⚠️ ORDRE IMPORTANT — ces routes AVANT /:id
+router.post('/search', ctrl.createHistoriqueSearch);
+router.get('/user/:userId', ctrl.getHistoriqueByUser);
+router.delete('/user/:userId/all', ctrl.deleteAllHistoriqueByUser);
 
-router.post('/', historiqueController.createHistorique);
-
-router.get('/', historiqueController.getAllHistoriques);
-
-router.delete('/:id', historiqueController.deleteHistorique);
-
+// /:id en dernier
+router.delete('/:id', ctrl.deleteHistorique);
 
 module.exports = router;

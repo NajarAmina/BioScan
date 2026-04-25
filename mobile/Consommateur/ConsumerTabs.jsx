@@ -2,7 +2,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
+import { Home, Heart, Clock, MessageSquare, User } from 'lucide-react-native';
 
 // ─── Screens partagés ───────────────────────────────────────────────────────
 import HomeScreen from './screens/shared/HomeScreen';
@@ -20,23 +21,12 @@ import ProfileScreen from './screens/consumer/ProfileScreen';
 import LoginScreen from './screens/auth/LoginScreen';
 import RegisterScreen from './screens/auth/RegisterScreen';
 
-// ─── Navigateurs ─────────────────────────────────────────────────────────────
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
 
-// ─── Constantes ──────────────────────────────────────────────────────────────
 const TAB_COLOR = '#16a34a';
 const TAB_INACTIVE = '#9ca3af';
-
-// ✅ Valeurs fixes — plus besoin de useSafeAreaInsets
-const TAB_HEIGHT = Platform.OS === 'ios' ? 80 : 60;
-const TAB_PADDING_BOTTOM = Platform.OS === 'ios' ? 20 : 8;
-
-// ─── Icône emoji ─────────────────────────────────────────────────────────────
-const icon = (emoji) =>
-  ({ focused }) => (
-    <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.45 }}>{emoji}</Text>
-  );
+const ICON_SIZE = 22;
 
 // ─── Stack Accueil ────────────────────────────────────────────────────────────
 function HomeStackNav() {
@@ -49,36 +39,12 @@ function HomeStackNav() {
         headerShadowVisible: false,
       }}
     >
-      <HomeStack.Screen
-        name="HomeMain"
-        component={HomeScreen}
-        options={{ headerShown: false }}
-      />
-      <HomeStack.Screen
-        name="Scanner"
-        component={ScannerScreen}
-        options={{ title: 'Scanner' }}
-      />
-      <HomeStack.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-        options={{ title: 'Produit' }}
-      />
-      <HomeStack.Screen
-        name="Comments"
-        component={CommentsScreen}
-        options={{ title: 'Commentaires' }}
-      />
-      <HomeStack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ title: 'Connexion' }}
-      />
-      <HomeStack.Screen
-        name="Register"
-        component={RegisterScreen}
-        options={{ title: 'Inscription' }}
-      />
+      <HomeStack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
+      <HomeStack.Screen name="Scanner" component={ScannerScreen} options={{ title: 'Scanner' }} />
+      <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Produit' }} />
+      <HomeStack.Screen name="Comments" component={CommentsScreen} options={{ title: 'Commentaires' }} />
+      <HomeStack.Screen name="Login" component={LoginScreen} options={{ title: 'Connexion' }} />
+      <HomeStack.Screen name="Register" component={RegisterScreen} options={{ title: 'Inscription' }} />
     </HomeStack.Navigator>
   );
 }
@@ -91,22 +57,31 @@ export default function ConsumerTabs() {
         tabBarActiveTintColor: TAB_COLOR,
         tabBarInactiveTintColor: TAB_INACTIVE,
         tabBarStyle: {
-          height: TAB_HEIGHT,
-          paddingBottom: TAB_PADDING_BOTTOM,
-          paddingTop: 4,
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 24 : 16,
+          left: 12,
+          right: 12,
+          height: Platform.OS === 'ios' ? 72 : 64,
+          borderRadius: 22,
           backgroundColor: '#ffffff',
-          borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: '#d1fae5',
-          elevation: 15,
+          borderTopWidth: 0,
+          elevation: 12,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.08,
-          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.12,
+          shadowRadius: 16,
+          paddingBottom: Platform.OS === 'ios' ? 10 : 6,
+          paddingTop: 6,
+          paddingHorizontal: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
-          marginTop: 0,
+          marginTop: 2,
+        },
+        tabBarItemStyle: {
+          borderRadius: 16,
+          marginHorizontal: 2,
         },
         headerStyle: { backgroundColor: TAB_COLOR },
         headerTintColor: '#fff',
@@ -119,8 +94,8 @@ export default function ConsumerTabs() {
         component={HomeStackNav}
         options={{
           headerShown: false,
-          tabBarIcon: icon('🏠'),
           tabBarLabel: 'Accueil',
+          tabBarIcon: ({ color }) => <Home size={ICON_SIZE} color={color} strokeWidth={2} />,
         }}
       />
       <Tab.Screen
@@ -128,8 +103,8 @@ export default function ConsumerTabs() {
         component={FavoritesScreen}
         options={{
           title: 'Mes Favoris',
-          tabBarIcon: icon('❤️'),
           tabBarLabel: 'Favoris',
+          tabBarIcon: ({ color }) => <Heart size={ICON_SIZE} color={color} strokeWidth={2} />,
         }}
       />
       <Tab.Screen
@@ -137,17 +112,17 @@ export default function ConsumerTabs() {
         component={HistoryScreen}
         options={{
           title: 'Historique',
-          tabBarIcon: icon('🕐'),
           tabBarLabel: 'Historique',
+          tabBarIcon: ({ color }) => <Clock size={ICON_SIZE} color={color} strokeWidth={2} />,
         }}
       />
       <Tab.Screen
         name="Chatbot"
         component={ChatbotScreen}
         options={{
-          title: 'Assistant',
-          tabBarIcon: icon('💬'),
+          title: 'Chatbot',
           tabBarLabel: 'Assistant',
+          tabBarIcon: ({ color }) => <MessageSquare size={ICON_SIZE} color={color} strokeWidth={2} />,
         }}
       />
       <Tab.Screen
@@ -155,8 +130,8 @@ export default function ConsumerTabs() {
         component={ProfileScreen}
         options={{
           title: 'Mon Profil',
-          tabBarIcon: icon('👤'),
           tabBarLabel: 'Mon Profil',
+          tabBarIcon: ({ color }) => <User size={ICON_SIZE} color={color} strokeWidth={2} />,
         }}
       />
     </Tab.Navigator>

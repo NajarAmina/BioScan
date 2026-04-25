@@ -3,6 +3,7 @@ import React from 'react';
 import {
   View, Text, Image, TouchableOpacity, StyleSheet,
 } from 'react-native';
+import { Heart, MessageCircle } from 'lucide-react-native';
 
 export default function ProductCard({
   produit, user, isFavorite = false,
@@ -45,21 +46,30 @@ export default function ProductCard({
 
       {/* Boutons action */}
       <View style={styles.actions}>
-        {/* Favori */}
+        {/* ✅ Favori — icône Lucide Heart */}
         <TouchableOpacity
-          style={styles.actionBtn}
+          style={[styles.actionBtn, isFavorite && styles.actionBtnActive]}
           onPress={(e) => { e.stopPropagation?.(); onFavorite && onFavorite(produit); }}
         >
-          <Text style={{ fontSize: 13 }}>{isFavorite ? '❤️' : '🤍'}</Text>
+          <Heart
+            size={14}
+            color={isFavorite ? '#ef4444' : '#64748b'}
+            fill={isFavorite ? '#ef4444' : 'transparent'}
+            strokeWidth={2}
+          />
         </TouchableOpacity>
 
-        {/* Commentaire */}
+        {/* ✅ Commentaire — icône Lucide MessageCircle */}
         {isConsommateur && onComment && (
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={(e) => { e.stopPropagation?.(); onComment(produit); }}
           >
-            <Text style={{ fontSize: 13 }}>💬</Text>
+            <MessageCircle
+              size={14}
+              color="#64748b"
+              strokeWidth={2}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -76,8 +86,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 3,
-    height: 160,  // ✅ réduit (était 200)
-    flex: 1,      // ✅ occupe la moitié de la largeur dans la grille
+    height: 160,
+    flex: 1,
   },
   image: { width: '100%', height: '100%' },
   noImage: {
@@ -98,7 +108,15 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'rgba(255,255,255,0.90)',
     justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  // ✅ Fond légèrement rosé quand favori actif
+  actionBtnActive: {
+    backgroundColor: 'rgba(255,241,241,0.95)',
   },
 });

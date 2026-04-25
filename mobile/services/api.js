@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 2️⃣  Vrai téléphone Android/iOS branché en WiFi
 //     → Trouvez votre IP : Windows = ipconfig | Mac/Linux = ifconfig
 //     → Remplacez 192.168.X.X par votre vraie IP locale
-export const BASE_URL = 'http://192.168.3.207:5000'; // ← CHANGEZ CETTE IP
+export const BASE_URL = 'http://192.168.43.105:5000'; // ← CHANGEZ CETTE IP
 
 // 3️⃣  Expo Go sur téléphone (même WiFi que le PC)
 //     Même chose que le cas 2 — utilisez votre IP locale

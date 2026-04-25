@@ -10,9 +10,6 @@ const API_AUTH = '/auth';
 export const ROLES = {
   VISITEUR: 'visiteur',
   CONSOMMATEUR: 'consommateur',
-  FOURNISSEUR: 'fournisseur',
-  AGENT: 'agent',
-  ADMINISTRATEUR: 'administrateur',
 };
 
 const normalizeStoredUser = (u) => (u ? { ...u, id: String(u.id || u._id) } : null);
