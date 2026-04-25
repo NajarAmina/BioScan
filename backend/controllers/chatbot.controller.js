@@ -29,8 +29,8 @@ Sois concis, clair, et chaleureux. Parle toujours en français.`;
         // - Avec image  → modèle vision Groq supporté
         // - Sans image  → modèle texte rapide
         const model = hasImage
-            ? "meta-llama/llama-4-maverick-17b-128e-instruct"  // ✅ Vision supporté sur Groq
-            : "llama3-8b-8192";                                 // ✅ Texte rapide et stable
+            ? "meta-llama/llama-4-scout-17b-16e-instruct"   // Vision stable ✅
+            : "llama-3.3-70b-versatile";                                // ✅ Texte rapide et stable
 
         let userContent;
 
