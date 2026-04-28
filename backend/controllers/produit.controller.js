@@ -495,6 +495,7 @@ exports.scanProduitByBarcode = async (req, res) => {
             return res.status(400).json({ message: 'Code-barres requis.' });
         }
 
+        // ✅ Cherche dans les deux champs code_barre ET codeBarres
         const produit = await Produit.findOne({
             $or: [
                 { code_barre: code },
@@ -507,29 +508,38 @@ exports.scanProduitByBarcode = async (req, res) => {
             .populate('validatedBy', 'nom prenom email');
 
         if (!produit) {
-            return res.status(404).json({ message: 'Produit non trouvé.' });
+            return res.status(404).json({ message: 'Produit non trouvé pour ce code-barres.' });
         }
 
-        const payload = buildPredictorPayloadFromProduct(produit);
-        const result = await runPythonPredictor(payload);
-        const predictions = result.predictions || {};
+        // ✅ Analyse Python optionnelle — si elle échoue, on retourne quand même le produit
+        try {
+            const payload = buildPredictorPayloadFromProduct(produit);
+            const result = await runPythonPredictor(payload);
+            const predictions = result.predictions || {};
 
-        produit.ai_predictions = predictions;
-        produit.nova_group = Number(predictions.nova_group || payload.nova_group || produit.nova_group || produit.nova || 1);
-        if (predictions.bioscore !== undefined) produit.scoreBio = predictions.bioscore;
-        if (predictions.cardio_risk !== undefined) produit.cardio_risk = predictions.cardio_risk;
-        if (predictions.diabetes_risk !== undefined) produit.diabetes_risk = predictions.diabetes_risk;
-        if (predictions.cardio_risk_proba !== undefined) produit.cardio_risk_proba = predictions.cardio_risk_proba;
-        if (predictions.diabetes_risk_proba !== undefined) produit.diabetes_risk_proba = predictions.diabetes_risk_proba;
-        await produit.save();
+            produit.ai_predictions = predictions;
+            produit.nova_group = Number(predictions.nova_group || payload.nova_group || produit.nova_group || produit.nova || 1);
+            if (predictions.bioscore !== undefined) produit.scoreBio = predictions.bioscore;
+            if (predictions.cardio_risk !== undefined) produit.cardio_risk = predictions.cardio_risk;
+            if (predictions.diabetes_risk !== undefined) produit.diabetes_risk = predictions.diabetes_risk;
+            if (predictions.cardio_risk_proba !== undefined) produit.cardio_risk_proba = predictions.cardio_risk_proba;
+            if (predictions.diabetes_risk_proba !== undefined) produit.diabetes_risk_proba = predictions.diabetes_risk_proba;
+            await produit.save();
 
-        const updatedProduit = await Produit.findById(produit._id)
-            .populate('ingredients')
-            .populate('pointsDeVente')
-            .populate('createdBy', 'nom prenom email')
-            .populate('validatedBy', 'nom prenom email');
+            const updatedProduit = await Produit.findById(produit._id)
+                .populate('ingredients')
+                .populate('pointsDeVente')
+                .populate('createdBy', 'nom prenom email')
+                .populate('validatedBy', 'nom prenom email');
 
-        res.status(200).json(updatedProduit);
+            return res.status(200).json(updatedProduit);
+
+        } catch (pythonError) {
+            // ✅ Python a échoué mais le produit existe → on le retourne quand même sans analyse IA
+            console.warn('⚠️ Analyse Python échouée (produit retourné sans prédictions):', pythonError.message);
+            return res.status(200).json(produit);
+        }
+
     } catch (error) {
         console.error('Erreur scanProduitByBarcode:', error);
         res.status(500).json({ message: error.message || 'Erreur serveur lors du scan du produit.' });

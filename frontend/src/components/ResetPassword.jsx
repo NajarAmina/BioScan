@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 
+// ✅ Détecte automatiquement si on est sur PC ou téléphone
+const getApiUrl = () => {
+  const hostname = window.location.hostname;
+  // Si on accède depuis une IP locale (téléphone) → utilise cette IP avec port 5000
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    return `http://${hostname}:5000`;
+  }
+  // Si on est sur PC → utilise le proxy localhost
+  return 'http://localhost:5000';
+};
+
+const API_URL = getApiUrl();
+
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
@@ -36,7 +49,8 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      // ✅ Utilise l'URL complète au lieu du chemin relatif
+      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password: newPassword })

@@ -12,8 +12,12 @@ export const ROLES = {
   ADMINISTRATEUR: 'administrateur'
 };
 
-// Normaliser l'utilisateur stocké
-const normalizeStoredUser = (u) => (u ? { ...u, id: String(u.id) } : null);
+// ✅ Normalise user — accepte id OU _id (MongoDB)
+const normalizeStoredUser = (u) => {
+  if (!u) return null;
+  const id = u.id || u._id; // ✅ accepte les deux formats
+  return { ...u, id: String(id), _id: String(id) };
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -34,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Logout global si le token a expiré (détecté par apiFetch)
+  // Logout global si le token a expiré
   useEffect(() => {
     const onExpired = () => {
       localStorage.removeItem('user');
@@ -66,9 +70,7 @@ export const AuthProvider = ({ children }) => {
       throw new Error(msg);
     }
 
-    // ✅ Le rôle est récupéré depuis le backend, pas vérifié côté client
     const u = normalizeStoredUser(data.user);
-
     if (data.token) localStorage.setItem('token', data.token);
     setUser(u);
     localStorage.setItem('user', JSON.stringify(u));
@@ -142,7 +144,7 @@ export const AuthProvider = ({ children }) => {
   // ---------- UPDATE USER ----------
   const updateUser = (updatedData) => {
     if (!user) return null;
-    const updatedUser = { ...user, ...updatedData };
+    const updatedUser = normalizeStoredUser({ ...user, ...updatedData });
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
     return updatedUser;

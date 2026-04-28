@@ -29,7 +29,7 @@ const sendResetPasswordEmail = async (toEmail, resetUrl) => {
     const mailOptions = {
         from: `"BioScan" <${process.env.SMTP_EMAIL}>`,
         to: toEmail,
-        subject: '🔐 Réinitialisation de votre mot de passe BioScan',
+        subject: ' Réinitialisation de votre mot de passe BioScan',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #16a34a;">BioScan</h2>
