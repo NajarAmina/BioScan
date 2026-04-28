@@ -4,7 +4,6 @@ const Notifications = ({ user }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // ✅ CORRECTION : user peut exposer _id (MongoDB) ou id (JWT décodé)
     const userId = user?.id || user?._id;
 
     useEffect(() => {
@@ -39,7 +38,6 @@ const Notifications = ({ user }) => {
     const markAllAsRead = async () => {
         if (!userId) return;
         try {
-            // ✅ userId sécurisé
             await fetch(`/api/notifications/read-all?recipientId=${userId}`, { method: 'PUT' });
             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         } catch (err) {
@@ -59,11 +57,60 @@ const Notifications = ({ user }) => {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     const getIcon = (message = '') => {
-        if (message.startsWith('✅')) return { icon: '✅', color: '#4CAF50', bg: '#E8F5E9' };
-        if (message.startsWith('✏️')) return { icon: '✏️', color: '#1976D2', bg: '#E3F2FD' };
-        if (message.startsWith('🗑️')) return { icon: '🗑️', color: '#f44336', bg: '#FFEBEE' };
-        if (message.startsWith('❌')) return { icon: '❌', color: '#f44336', bg: '#FFEBEE' };
-        return { icon: '🔔', color: '#FF9800', bg: '#FFF3E0' };
+        const icons = {
+            '✅': {
+                color: '#16a34a', bg: '#f0fdf4',
+                svg: (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                )
+            },
+            '✏️': {
+                color: '#2563eb', bg: '#eff6ff',
+                svg: (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                )
+            },
+            '🗑️': {
+                color: '#dc2626', bg: '#fef2f2',
+                svg: (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        <path d="M10 11v6M14 11v6" />
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                )
+            },
+            '❌': {
+                color: '#dc2626', bg: '#fef2f2',
+                svg: (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                )
+            },
+        };
+
+        for (const [emoji, val] of Object.entries(icons)) {
+            if (message.startsWith(emoji)) return { icon: val.svg, color: val.color, bg: val.bg };
+        }
+
+        return {
+            color: '#d97706', bg: '#fffbeb',
+            icon: (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+            )
+        };
     };
 
     const formatDate = (dateStr) => {
@@ -82,21 +129,48 @@ const Notifications = ({ user }) => {
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
     };
 
+    // SVG icons réutilisables
+    const IconCheck = () => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+        </svg>
+    );
+
+    const IconTrash = () => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+        </svg>
+    );
+
+    const IconBox = () => (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 5, verticalAlign: 'middle' }}>
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+        </svg>
+    );
+
+    const IconAgent = () => (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4, verticalAlign: 'middle' }}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </svg>
+    );
+
     return (
         <div style={S.page}>
             {/* En-tête */}
             <div style={S.header}>
                 <div style={S.headerLeft}>
-                    <span style={S.headerIcon}>🔔</span>
                     <h2 style={S.headerTitle}>Notifications</h2>
                     {unreadCount > 0 && (
                         <span style={S.headerBadge}>{unreadCount}</span>
                     )}
                 </div>
                 <div style={S.headerActions}>
-                    <button onClick={loadNotifications} style={S.btnRefresh} title="Actualiser">
-                        🔄
-                    </button>
                     {unreadCount > 0 && (
                         <button onClick={markAllAsRead} style={S.btnMarkAll}>
                             Tout marquer lu
@@ -112,40 +186,55 @@ const Notifications = ({ user }) => {
                 </div>
             ) : notifications.length === 0 ? (
                 <div style={S.center}>
-                    <div style={S.emptyIcon}>🔕</div>
+                    <div style={S.emptyIconWrap}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                    </div>
                     <p style={S.emptyText}>Aucune notification</p>
                     <p style={S.emptySubText}>Vous serez notifié lorsqu'un agent agit sur vos produits</p>
                 </div>
             ) : (
                 <div style={S.list}>
                     {notifications.map(n => {
-                        const { color, bg } = getIcon(n.message);
+                        const type = getIcon(n.message);
                         return (
                             <div
                                 key={n._id}
                                 style={{
                                     ...S.card,
-                                    borderLeft: `4px solid ${color}`,
+                                    borderLeft: `4px solid ${type.color}`,
                                     backgroundColor: n.read ? '#fff' : '#FAFBFF',
                                     opacity: n.read ? 0.85 : 1
                                 }}
                             >
-                                {/* Icône */}
-                                <div style={{ ...S.iconBox, backgroundColor: bg, color }}>
-                                    {getIcon(n.message).icon}
+                                {/* Icône type */}
+                                <div style={{ ...S.iconBox, backgroundColor: type.bg, color: type.color }}>
+                                    {type.icon}
                                 </div>
 
                                 {/* Contenu */}
                                 <div style={S.cardBody}>
                                     {n.productName && (
-                                        <p style={S.productName}>📦 {n.productName}</p>
+                                        <p style={S.productName}>
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 5, verticalAlign: 'middle', color: '#555' }}>
+                                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                                <line x1="12" y1="22.08" x2="12" y2="12" />
+                                            </svg>
+                                            {n.productName}
+                                        </p>
                                     )}
                                     <p style={S.message}>{n.message}</p>
                                     <div style={S.cardMeta}>
                                         {n.agentName && (
-                                            <span style={S.agentName}>👤 {n.agentName}</span>
+                                            <span style={S.agentName}>
+                                                <IconAgent />
+                                                {n.agentName}
+                                            </span>
                                         )}
-                                        {/* ✅ Utilise createdAt (timestamps Mongoose) en priorité */}
                                         <span style={S.date}>{formatDate(n.createdAt || n.date)}</span>
                                     </div>
                                 </div>
@@ -158,15 +247,16 @@ const Notifications = ({ user }) => {
                                             style={S.btnRead}
                                             title="Marquer comme lu"
                                         >
-                                            ✓
+                                            <IconCheck />
                                         </button>
                                     )}
-                                    <button
-                                        onClick={() => deleteNotification(n._id)}
-                                        style={S.btnDelete}
-                                        title="Supprimer"
-                                    >
-                                        🗑️
+                                    <button onClick={() => deleteNotification(n._id)} style={S.btnDelete} title="Supprimer">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="3 6 5 6 21 6" />
+                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                            <path d="M10 11v6M14 11v6" />
+                                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                        </svg>
                                     </button>
                                 </div>
 
@@ -186,7 +276,7 @@ const S = {
     page: {
         padding: '8px 0',
         fontFamily: 'sans-serif',
-        maxWidth: 700
+        maxWidth: 1100
     },
     header: {
         display: 'flex',
@@ -200,9 +290,6 @@ const S = {
         display: 'flex',
         alignItems: 'center',
         gap: 10
-    },
-    headerIcon: {
-        fontSize: 24
     },
     headerTitle: {
         margin: 0,
@@ -223,16 +310,8 @@ const S = {
         gap: 8,
         alignItems: 'center'
     },
-    btnRefresh: {
-        background: 'none',
-        border: '1px solid #ddd',
-        borderRadius: 6,
-        padding: '6px 10px',
-        cursor: 'pointer',
-        fontSize: 16
-    },
     btnMarkAll: {
-        backgroundColor: '#1976D2',
+        backgroundColor: '#2ea761ff',
         color: '#fff',
         border: 'none',
         borderRadius: 6,
@@ -249,9 +328,10 @@ const S = {
         color: '#888',
         fontSize: 15
     },
-    emptyIcon: {
-        fontSize: 52,
-        marginBottom: 12
+    emptyIconWrap: {
+        marginBottom: 14,
+        display: 'flex',
+        justifyContent: 'center'
     },
     emptyText: {
         fontSize: 17,
@@ -287,7 +367,6 @@ const S = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 18,
         flexShrink: 0
     },
     cardBody: {
@@ -298,7 +377,9 @@ const S = {
         margin: '0 0 4px',
         fontSize: 13,
         fontWeight: 700,
-        color: '#333'
+        color: '#333',
+        display: 'flex',
+        alignItems: 'center'
     },
     message: {
         margin: '0 0 6px',
@@ -314,7 +395,9 @@ const S = {
     },
     agentName: {
         fontSize: 12,
-        color: '#888'
+        color: '#888',
+        display: 'flex',
+        alignItems: 'center'
     },
     date: {
         fontSize: 12,
@@ -331,18 +414,26 @@ const S = {
         border: '1px solid #4CAF50',
         color: '#4CAF50',
         borderRadius: 6,
-        padding: '4px 8px',
         cursor: 'pointer',
-        fontSize: 13,
-        fontWeight: 700
+        width: 30,
+        height: 30,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0
     },
     btnDelete: {
         background: 'none',
         border: '1px solid #eee',
+        color: '#999',
         borderRadius: 6,
-        padding: '4px 8px',
         cursor: 'pointer',
-        fontSize: 13
+        width: 30,
+        height: 30,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0
     },
     unreadDot: {
         position: 'absolute',
@@ -362,7 +453,6 @@ export const useUnreadCount = (userId) => {
     const [count, setCount] = React.useState(0);
 
     React.useEffect(() => {
-        // ✅ Accepte user object ou string ID direct
         const uid = userId?._id || userId?.id || userId;
         if (!uid) return;
 
@@ -377,7 +467,6 @@ export const useUnreadCount = (userId) => {
         };
 
         fetchCount();
-        // Polling toutes les 30 secondes
         const interval = setInterval(fetchCount, 30000);
         return () => clearInterval(interval);
     }, [userId]);

@@ -198,7 +198,7 @@ const styles = {
         fontSize: 22, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     },
     chatBox: {
-        position: 'absolute', bottom: 68, right: 0, width: 320, maxHeight: 460,
+        position: 'absolute', bottom: 68, right: 0, width: 360, maxHeight: 560,
         backgroundColor: '#fff', borderRadius: 12,
         boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',

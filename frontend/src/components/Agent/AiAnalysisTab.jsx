@@ -193,7 +193,7 @@ const IngredientLLMAnalyzer = ({
 
     return (
         <Section
-            title="Analyse LLM Ingrédient "
+            title="Analyse d'Ingrédient "
             subtitle="Nom d'un ingrédient → analyse dynamique structurée (origine, NOVA, danger, recos ciblées)."
             icon={Sparkles}
             right={
